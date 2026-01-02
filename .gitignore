@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Observable Framework build output
+dist/
+.observablehq/
+
+# OS files
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local

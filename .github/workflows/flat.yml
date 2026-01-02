@@ -1,0 +1,37 @@
+name: Flat Data
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday at midnight UTC
+  workflow_dispatch: {}  # Allow manual triggering
+
+jobs:
+  scheduled:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Deno
+        uses: denoland/setup-deno@main
+        with:
+          deno-version: v1.x
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch colors.csv
+        uses: githubocto/flat@v3
+        with:
+          http_url: https://cdn.rebrickable.com/media/downloads/colors.csv
+          downloaded_filename: src/data/colors.csv
+
+      - name: Fetch parts.csv
+        uses: githubocto/flat@v3
+        with:
+          http_url: https://cdn.rebrickable.com/media/downloads/parts.csv
+          downloaded_filename: src/data/parts.csv
+
+      - name: Fetch inventory_parts.csv.gz and postprocess
+        uses: githubocto/flat@v3
+        with:
+          http_url: https://cdn.rebrickable.com/media/downloads/inventory_parts.csv.gz
+          downloaded_filename: src/data/inventory_parts.csv.gz
+          postprocess: postprocess.ts

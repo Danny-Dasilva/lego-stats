@@ -1,0 +1,21 @@
+[
+  {"name": "Other (less than 1%)", "rgb": "cccccc", "quantity": 131918, "percent": 14.36},
+  {"name": "Black", "rgb": "05131D", "quantity": 157919, "percent": 17.23},
+  {"name": "Light Bluish Gray", "rgb": "A0A5A9", "quantity": 136470, "percent": 14.89},
+  {"name": "White", "rgb": "FFFFFF", "quantity": 92521, "percent": 10.09},
+  {"name": "Dark Bluish Gray", "rgb": "6C6E68", "quantity": 91637, "percent": 10.00},
+  {"name": "Tan", "rgb": "E4CD9E", "quantity": 48736, "percent": 5.32},
+  {"name": "Red", "rgb": "C91A09", "quantity": 46028, "percent": 5.02},
+  {"name": "Reddish Brown", "rgb": "582A12", "quantity": 40285, "percent": 4.40},
+  {"name": "Blue", "rgb": "0055BF", "quantity": 34872, "percent": 3.80},
+  {"name": "Yellow", "rgb": "F2CD37", "quantity": 27765, "percent": 3.03},
+  {"name": "Dark Tan", "rgb": "958A73", "quantity": 17577, "percent": 1.92},
+  {"name": "Green", "rgb": "237841", "quantity": 13675, "percent": 1.49},
+  {"name": "Pearl Gold", "rgb": "AA7F2E", "quantity": 13000, "percent": 1.42},
+  {"name": "Dark Blue", "rgb": "0A3463", "quantity": 12439, "percent": 1.36},
+  {"name": "Orange", "rgb": "FE8A18", "quantity": 11470, "percent": 1.25},
+  {"name": "Dark Red", "rgb": "720E0F", "quantity": 10785, "percent": 1.18},
+  {"name": "Trans-Clear", "rgb": "FCFCFC", "quantity": 10665, "percent": 1.16},
+  {"name": "Lime", "rgb": "BBE90B", "quantity": 9561, "percent": 1.04},
+  {"name": "Trans-Light Blue", "rgb": "AEEFEC", "quantity": 9221, "percent": 1.01}
+]

@@ -1,0 +1,18 @@
+{
+  "name": "lego-stats",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "LEGO Statistics Dashboard using Observable Framework and Rebrickable data",
+  "scripts": {
+    "dev": "observable preview",
+    "build": "observable build && npm run copy-svgs",
+    "copy-svgs": "cp -r src/part-svgs dist/part-svgs",
+    "clean": "observable clean"
+  },
+  "keywords": ["lego", "statistics", "observable", "rebrickable"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@observablehq/framework": "^1.13.3"
+  }
+}

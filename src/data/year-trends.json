@@ -1,0 +1,30 @@
+{
+  "note": "Year trends require sets.csv to join inventory data with set years",
+  "totalPieces": 916544,
+  "colorCount": 19,
+  "partCount": 100,
+  "topColors": [
+    {"name": "Black", "percent": 17.23},
+    {"name": "Light Bluish Gray", "percent": 14.89},
+    {"name": "Other (less than 1%)", "percent": 14.36},
+    {"name": "White", "percent": 10.09},
+    {"name": "Dark Bluish Gray", "percent": 10.00},
+    {"name": "Tan", "percent": 5.32},
+    {"name": "Red", "percent": 5.02},
+    {"name": "Reddish Brown", "percent": 4.40},
+    {"name": "Blue", "percent": 3.80},
+    {"name": "Yellow", "percent": 3.03}
+  ],
+  "topParts": [
+    {"part_num": "6141", "name": "Plate Round 1 x 1 with Solid Stud"},
+    {"part_num": "3023", "name": "Plate 1 x 2"},
+    {"part_num": "3024", "name": "Plate 1 x 1"},
+    {"part_num": "2780", "name": "Technic Pin with Friction Ridges"},
+    {"part_num": "98138", "name": "Tile Round 1 x 1"},
+    {"part_num": "3020", "name": "Plate 2 x 4"},
+    {"part_num": "3022", "name": "Plate 2 x 2"},
+    {"part_num": "3021", "name": "Plate 2 x 3"},
+    {"part_num": "3710", "name": "Plate 1 x 4"},
+    {"part_num": "3666", "name": "Plate 1 x 6"}
+  ]
+}
