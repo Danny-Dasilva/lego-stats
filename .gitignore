@@ -1,9 +1,11 @@
 # Dependencies
 node_modules/
 
-# Observable Framework build output
+# Build output
 dist/
-.observablehq/
+
+# Raw data from Flat Data (fetched at runtime)
+data/
 
 # OS files
 .DS_Store

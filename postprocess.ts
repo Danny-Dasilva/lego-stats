@@ -4,14 +4,14 @@
  * Ported from charts_lego.ipynb pandas logic to Deno/TypeScript
  *
  * Input files:
- *   - src/data/colors.csv
- *   - src/data/parts.csv
- *   - src/data/inventory_parts.csv.gz (decompressed automatically by Flat)
+ *   - data/colors.csv
+ *   - data/parts.csv
+ *   - data/inventory_parts.csv.gz (decompressed automatically by Flat)
  *
  * Output files:
- *   - src/data/color-stats.json
- *   - src/data/part-frequency.json
- *   - src/data/year-trends.json
+ *   - public/data/color-stats.json
+ *   - public/data/part-frequency.json
+ *   - public/data/year-trends.json
  */
 
 import { readCSV, writeJSON } from "https://deno.land/x/flat@0.0.15/mod.ts";
@@ -50,6 +50,7 @@ interface PartFrequency {
   part_num: string;
   name: string;
   quantity: number;
+  image: string;
 }
 
 // Main postprocess function
@@ -59,10 +60,10 @@ async function main() {
 
   // Read all CSV files
   console.log("Reading colors.csv...");
-  const colors = await readCSV("src/data/colors.csv") as Color[];
+  const colors = await readCSV("data/colors.csv") as Color[];
 
   console.log("Reading parts.csv...");
-  const parts = await readCSV("src/data/parts.csv") as Part[];
+  const parts = await readCSV("data/parts.csv") as Part[];
 
   // For inventory_parts, we need to handle the gzip
   // Flat automatically decompresses .gz files, so we read the decompressed version
@@ -179,7 +180,8 @@ async function main() {
       return {
         part_num: p.part_num,
         name: part?.name || "Unknown",
-        quantity: p.quantity
+        quantity: p.quantity,
+        image: `https://cdn.rebrickable.com/media/parts/ldraw/0/${p.part_num}.png`
       };
     });
 
@@ -201,9 +203,9 @@ async function main() {
 
   // Write output files
   console.log("Writing output files...");
-  await writeJSON("src/data/color-stats.json", colorStats);
-  await writeJSON("src/data/part-frequency.json", partFrequency);
-  await writeJSON("src/data/year-trends.json", yearTrends);
+  await writeJSON("public/data/color-stats.json", colorStats);
+  await writeJSON("public/data/part-frequency.json", partFrequency);
+  await writeJSON("public/data/year-trends.json", yearTrends);
 
   console.log("Postprocessing complete!");
   console.log(`  - color-stats.json: ${colorStats.length} colors`);

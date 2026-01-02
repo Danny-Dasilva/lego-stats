@@ -17,21 +17,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Create data directory
+        run: mkdir -p data public/data
+
       - name: Fetch colors.csv
         uses: githubocto/flat@v3
         with:
           http_url: https://cdn.rebrickable.com/media/downloads/colors.csv
-          downloaded_filename: src/data/colors.csv
+          downloaded_filename: data/colors.csv
 
       - name: Fetch parts.csv
         uses: githubocto/flat@v3
         with:
           http_url: https://cdn.rebrickable.com/media/downloads/parts.csv
-          downloaded_filename: src/data/parts.csv
+          downloaded_filename: data/parts.csv
 
       - name: Fetch inventory_parts.csv.gz and postprocess
         uses: githubocto/flat@v3
         with:
           http_url: https://cdn.rebrickable.com/media/downloads/inventory_parts.csv.gz
-          downloaded_filename: src/data/inventory_parts.csv.gz
+          downloaded_filename: data/inventory_parts.csv.gz
           postprocess: postprocess.ts
