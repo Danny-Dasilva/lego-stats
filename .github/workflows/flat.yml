@@ -32,6 +32,18 @@ jobs:
           http_url: https://cdn.rebrickable.com/media/downloads/parts.csv
           downloaded_filename: data/parts.csv
 
+      - name: Fetch sets.csv.gz
+        uses: githubocto/flat@v3
+        with:
+          http_url: https://cdn.rebrickable.com/media/downloads/sets.csv.gz
+          downloaded_filename: data/sets.csv.gz
+
+      - name: Fetch inventories.csv.gz
+        uses: githubocto/flat@v3
+        with:
+          http_url: https://cdn.rebrickable.com/media/downloads/inventories.csv.gz
+          downloaded_filename: data/inventories.csv.gz
+
       - name: Fetch inventory_parts.csv.gz and postprocess
         uses: githubocto/flat@v3
         with:

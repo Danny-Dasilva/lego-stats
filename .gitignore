@@ -5,7 +5,7 @@ node_modules/
 dist/
 
 # Raw data from Flat Data (fetched at runtime)
-data/
+/data/
 
 # OS files
 .DS_Store

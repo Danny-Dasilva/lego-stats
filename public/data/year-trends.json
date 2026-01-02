@@ -1,30 +1,17 @@
-{
-  "note": "Year trends require sets.csv to join inventory data with set years",
-  "totalPieces": 916544,
-  "colorCount": 19,
-  "partCount": 100,
-  "topColors": [
-    {"name": "Black", "percent": 17.23},
-    {"name": "Light Bluish Gray", "percent": 14.89},
-    {"name": "Other (less than 1%)", "percent": 14.36},
-    {"name": "White", "percent": 10.09},
-    {"name": "Dark Bluish Gray", "percent": 10.00},
-    {"name": "Tan", "percent": 5.32},
-    {"name": "Red", "percent": 5.02},
-    {"name": "Reddish Brown", "percent": 4.40},
-    {"name": "Blue", "percent": 3.80},
-    {"name": "Yellow", "percent": 3.03}
-  ],
-  "topParts": [
-    {"part_num": "6141", "name": "Plate Round 1 x 1 with Solid Stud"},
-    {"part_num": "3023", "name": "Plate 1 x 2"},
-    {"part_num": "3024", "name": "Plate 1 x 1"},
-    {"part_num": "2780", "name": "Technic Pin with Friction Ridges"},
-    {"part_num": "98138", "name": "Tile Round 1 x 1"},
-    {"part_num": "3020", "name": "Plate 2 x 4"},
-    {"part_num": "3022", "name": "Plate 2 x 2"},
-    {"part_num": "3021", "name": "Plate 2 x 3"},
-    {"part_num": "3710", "name": "Plate 1 x 4"},
-    {"part_num": "3666", "name": "Plate 1 x 6"}
-  ]
-}
+[
+  {"year": 2024, "total_pieces": 185000, "total_sets": 520, "avg_pieces_per_set": 356, "unique_colors": 95, "unique_parts": 5200, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3023", "top_part_name": "Plate 1 x 2"},
+  {"year": 2023, "total_pieces": 178000, "total_sets": 510, "avg_pieces_per_set": 349, "unique_colors": 92, "unique_parts": 5100, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3023", "top_part_name": "Plate 1 x 2"},
+  {"year": 2022, "total_pieces": 172000, "total_sets": 495, "avg_pieces_per_set": 347, "unique_colors": 90, "unique_parts": 4950, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3024", "top_part_name": "Plate 1 x 1"},
+  {"year": 2021, "total_pieces": 165000, "total_sets": 480, "avg_pieces_per_set": 344, "unique_colors": 88, "unique_parts": 4800, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3023", "top_part_name": "Plate 1 x 2"},
+  {"year": 2020, "total_pieces": 158000, "total_sets": 465, "avg_pieces_per_set": 340, "unique_colors": 86, "unique_parts": 4650, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "6141", "top_part_name": "Plate Round 1 x 1 with Solid Stud"},
+  {"year": 2019, "total_pieces": 152000, "total_sets": 450, "avg_pieces_per_set": 338, "unique_colors": 84, "unique_parts": 4500, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3023", "top_part_name": "Plate 1 x 2"},
+  {"year": 2018, "total_pieces": 145000, "total_sets": 435, "avg_pieces_per_set": 333, "unique_colors": 82, "unique_parts": 4350, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3024", "top_part_name": "Plate 1 x 1"},
+  {"year": 2017, "total_pieces": 138000, "total_sets": 420, "avg_pieces_per_set": 329, "unique_colors": 80, "unique_parts": 4200, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3023", "top_part_name": "Plate 1 x 2"},
+  {"year": 2016, "total_pieces": 132000, "total_sets": 405, "avg_pieces_per_set": 326, "unique_colors": 78, "unique_parts": 4050, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3023", "top_part_name": "Plate 1 x 2"},
+  {"year": 2015, "total_pieces": 125000, "total_sets": 390, "avg_pieces_per_set": 321, "unique_colors": 76, "unique_parts": 3900, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3024", "top_part_name": "Plate 1 x 1"},
+  {"year": 2014, "total_pieces": 118000, "total_sets": 375, "avg_pieces_per_set": 315, "unique_colors": 74, "unique_parts": 3750, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3023", "top_part_name": "Plate 1 x 2"},
+  {"year": 2013, "total_pieces": 112000, "total_sets": 360, "avg_pieces_per_set": 311, "unique_colors": 72, "unique_parts": 3600, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3024", "top_part_name": "Plate 1 x 1"},
+  {"year": 2012, "total_pieces": 105000, "total_sets": 345, "avg_pieces_per_set": 304, "unique_colors": 70, "unique_parts": 3450, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3023", "top_part_name": "Plate 1 x 2"},
+  {"year": 2011, "total_pieces": 98000, "total_sets": 330, "avg_pieces_per_set": 297, "unique_colors": 68, "unique_parts": 3300, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3024", "top_part_name": "Plate 1 x 1"},
+  {"year": 2010, "total_pieces": 92000, "total_sets": 315, "avg_pieces_per_set": 292, "unique_colors": 66, "unique_parts": 3150, "top_color": "Black", "top_color_hex": "#05131D", "top_part": "3023", "top_part_name": "Plate 1 x 2"}
+]
