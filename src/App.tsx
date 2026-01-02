@@ -1,17 +1,29 @@
 import { useState, useEffect } from 'react'
 import { Grid } from '@githubocto/flat-ui'
+import { CoverageAnalysis, CoverageStats } from './components/CoverageAnalysis'
+import { StackedBarChart, TrendsLineChart, CoveragePoint, DecadeColorData, YearTrend } from './components/charts'
 
-type DataSet = 'parts' | 'colors' | 'trends'
+type ViewMode = 'tables' | 'charts'
+type TableDataSet = 'parts' | 'colors' | 'trends'
+type ChartDataSet = 'coverage' | 'colorTrends' | 'historical'
 
 const BASE = import.meta.env.BASE_URL
 
-const DATA_FILES: Record<DataSet, string> = {
+const TABLE_DATA_FILES: Record<TableDataSet, string> = {
   parts: `${BASE}data/part-frequency.json`,
   colors: `${BASE}data/color-stats.json`,
   trends: `${BASE}data/year-trends.json`,
 }
 
-const DATASET_INFO: Record<DataSet, { title: string; description: string }> = {
+const CHART_DATA_FILES = {
+  coverage: `${BASE}data/coverage-stats.json`,
+  decadeColors: `${BASE}data/decade-colors.json`,
+  partFrequency: `${BASE}data/part-frequency.json`,
+  colorStats: `${BASE}data/color-stats.json`,
+  yearTrends: `${BASE}data/year-trends.json`,
+}
+
+const TABLE_DATASET_INFO: Record<TableDataSet, { title: string; description: string }> = {
   parts: {
     title: 'Most Common LEGO Parts',
     description: 'Top 100 parts by total quantity across all LEGO sets',
@@ -26,60 +38,228 @@ const DATASET_INFO: Record<DataSet, { title: string; description: string }> = {
   },
 }
 
+const CHART_DATASET_INFO: Record<ChartDataSet, { title: string; description: string }> = {
+  coverage: {
+    title: 'Coverage Analysis',
+    description: 'How many parts/colors needed for X% coverage in object detection',
+  },
+  colorTrends: {
+    title: 'Color Distribution by Decade',
+    description: 'How LEGO color palette has evolved over time',
+  },
+  historical: {
+    title: 'Historical Trends',
+    description: 'Sets released, average pieces, and unique parts over time',
+  },
+}
+
+// Button style helper
+const getButtonStyle = (isActive: boolean, variant: 'primary' | 'secondary' = 'primary') => ({
+  padding: '0.5rem 1rem',
+  border: '1px solid #e1e4e8',
+  borderRadius: '6px',
+  background: isActive
+    ? variant === 'primary' ? '#0969da' : '#24292f'
+    : 'white',
+  color: isActive ? 'white' : '#24292f',
+  cursor: 'pointer',
+  fontWeight: isActive ? 600 : 400,
+})
+
 export default function App() {
-  const [data, setData] = useState<any[]>([])
-  const [activeDataset, setActiveDataset] = useState<DataSet>('parts')
+  // View state
+  const [viewMode, setViewMode] = useState<ViewMode>('tables')
+  const [activeTableDataset, setActiveTableDataset] = useState<TableDataSet>('parts')
+  const [activeChartDataset, setActiveChartDataset] = useState<ChartDataSet>('coverage')
+
+  // Table data
+  const [tableData, setTableData] = useState<any[]>([])
+
+  // Chart data
+  const [coverageStats, setCoverageStats] = useState<CoverageStats | null>(null)
+  const [partData, setPartData] = useState<CoveragePoint[]>([])
+  const [colorData, setColorData] = useState<CoveragePoint[]>([])
+  const [decadeColorsData, setDecadeColorsData] = useState<DecadeColorData[]>([])
+  const [yearTrendsData, setYearTrendsData] = useState<YearTrend[]>([])
+
   const [loading, setLoading] = useState(true)
 
+  // Load table data
   useEffect(() => {
+    if (viewMode !== 'tables') return
+
     setLoading(true)
-    fetch(DATA_FILES[activeDataset])
+    fetch(TABLE_DATA_FILES[activeTableDataset])
       .then((res) => res.json())
       .then((json) => {
-        setData(json)
+        setTableData(json)
         setLoading(false)
       })
       .catch((err) => {
-        console.error('Failed to load data:', err)
+        console.error('Failed to load table data:', err)
         setLoading(false)
       })
-  }, [activeDataset])
+  }, [viewMode, activeTableDataset])
 
-  const info = DATASET_INFO[activeDataset]
+  // Load chart data
+  useEffect(() => {
+    if (viewMode !== 'charts') return
+
+    setLoading(true)
+
+    if (activeChartDataset === 'coverage') {
+      // Load coverage stats + part/color data for curves
+      Promise.all([
+        fetch(CHART_DATA_FILES.coverage).then((res) => res.json()),
+        fetch(CHART_DATA_FILES.partFrequency).then((res) => res.json()),
+        fetch(CHART_DATA_FILES.colorStats).then((res) => res.json()),
+      ])
+        .then(([coverage, parts, colors]) => {
+          setCoverageStats(coverage)
+          // Transform parts data to CoveragePoint format
+          setPartData(
+            parts.map((p: any, i: number) => ({
+              rank: p.rank || i + 1,
+              name: p.name,
+              quantity: p.quantity,
+              cumulative_percent: p.cumulative_percent,
+            }))
+          )
+          // Transform colors data to CoveragePoint format
+          setColorData(
+            colors.map((c: any, i: number) => ({
+              rank: c.rank || i + 1,
+              name: c.name,
+              quantity: c.quantity,
+              cumulative_percent: c.cumulative_percent,
+            }))
+          )
+          setLoading(false)
+        })
+        .catch((err) => {
+          console.error('Failed to load coverage data:', err)
+          setLoading(false)
+        })
+    } else if (activeChartDataset === 'colorTrends') {
+      fetch(CHART_DATA_FILES.decadeColors)
+        .then((res) => res.json())
+        .then((json) => {
+          setDecadeColorsData(json)
+          setLoading(false)
+        })
+        .catch((err) => {
+          console.error('Failed to load decade colors data:', err)
+          setLoading(false)
+        })
+    } else if (activeChartDataset === 'historical') {
+      fetch(CHART_DATA_FILES.yearTrends)
+        .then((res) => res.json())
+        .then((json) => {
+          setYearTrendsData(json)
+          setLoading(false)
+        })
+        .catch((err) => {
+          console.error('Failed to load year trends data:', err)
+          setLoading(false)
+        })
+    }
+  }, [viewMode, activeChartDataset])
+
+  const currentInfo =
+    viewMode === 'tables'
+      ? TABLE_DATASET_INFO[activeTableDataset]
+      : CHART_DATASET_INFO[activeChartDataset]
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header style={{ padding: '1rem', borderBottom: '1px solid #e1e4e8' }}>
         <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>LEGO Statistics</h1>
+
+        {/* View Mode Toggle */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+          <button
+            onClick={() => setViewMode('tables')}
+            style={getButtonStyle(viewMode === 'tables', 'secondary')}
+          >
+            Tables
+          </button>
+          <button
+            onClick={() => setViewMode('charts')}
+            style={getButtonStyle(viewMode === 'charts', 'secondary')}
+          >
+            Charts
+          </button>
+        </div>
+
+        {/* Dataset Navigation */}
         <nav style={{ display: 'flex', gap: '0.5rem' }}>
-          {(['parts', 'colors', 'trends'] as DataSet[]).map((dataset) => (
-            <button
-              key={dataset}
-              onClick={() => setActiveDataset(dataset)}
-              style={{
-                padding: '0.5rem 1rem',
-                border: '1px solid #e1e4e8',
-                borderRadius: '6px',
-                background: activeDataset === dataset ? '#0969da' : 'white',
-                color: activeDataset === dataset ? 'white' : '#24292f',
-                cursor: 'pointer',
-              }}
-            >
-              {dataset === 'parts' ? 'Parts' : dataset === 'colors' ? 'Colors' : 'Years'}
-            </button>
-          ))}
+          {viewMode === 'tables' ? (
+            <>
+              {(['parts', 'colors', 'trends'] as TableDataSet[]).map((dataset) => (
+                <button
+                  key={dataset}
+                  onClick={() => setActiveTableDataset(dataset)}
+                  style={getButtonStyle(activeTableDataset === dataset)}
+                >
+                  {dataset === 'parts' ? 'Parts' : dataset === 'colors' ? 'Colors' : 'Years'}
+                </button>
+              ))}
+            </>
+          ) : (
+            <>
+              {(['coverage', 'colorTrends', 'historical'] as ChartDataSet[]).map((dataset) => (
+                <button
+                  key={dataset}
+                  onClick={() => setActiveChartDataset(dataset)}
+                  style={getButtonStyle(activeChartDataset === dataset)}
+                >
+                  {dataset === 'coverage'
+                    ? 'Coverage'
+                    : dataset === 'colorTrends'
+                    ? 'Color Trends'
+                    : 'Historical'}
+                </button>
+              ))}
+            </>
+          )}
         </nav>
       </header>
+
       <div style={{ padding: '1rem 1rem 0', borderBottom: '1px solid #e1e4e8' }}>
-        <h2 style={{ fontSize: '1.25rem', margin: 0 }}>{info.title}</h2>
-        <p style={{ color: '#57606a', margin: '0.25rem 0 0.75rem', fontSize: '0.875rem' }}>{info.description}</p>
+        <h2 style={{ fontSize: '1.25rem', margin: 0 }}>{currentInfo.title}</h2>
+        <p style={{ color: '#57606a', margin: '0.25rem 0 0.75rem', fontSize: '0.875rem' }}>
+          {currentInfo.description}
+        </p>
       </div>
-      <main style={{ flex: 1, overflow: 'hidden' }}>
+
+      <main
+        style={{
+          flex: 1,
+          overflow: 'auto',
+          backgroundColor: viewMode === 'charts' ? '#f6f8fa' : 'white',
+        }}
+      >
         {loading ? (
           <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
-        ) : (
-          <Grid data={data} />
-        )}
+        ) : viewMode === 'tables' ? (
+          <div style={{ height: '100%' }}>
+            <Grid data={tableData} />
+          </div>
+        ) : activeChartDataset === 'coverage' && coverageStats ? (
+          <CoverageAnalysis
+            coverageStats={coverageStats}
+            partData={partData}
+            colorData={colorData}
+          />
+        ) : activeChartDataset === 'colorTrends' ? (
+          <div style={{ padding: '24px' }}>
+            <StackedBarChart data={decadeColorsData} />
+          </div>
+        ) : activeChartDataset === 'historical' ? (
+          <div style={{ padding: '24px' }}>
+            <TrendsLineChart data={yearTrendsData} />
+          </div>
+        ) : null}
       </main>
     </div>
   )

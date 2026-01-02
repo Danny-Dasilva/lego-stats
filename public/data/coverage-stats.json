@@ -1,0 +1,24 @@
+{
+  "parts": {
+    "total_unique": 8565,
+    "total_quantity": 917000,
+    "thresholds": {
+      "50": { "count": 23, "items": ["Plate Round 1 x 1", "Plate 1 x 2", "Plate 1 x 1", "Brick 1 x 2", "Plate 2 x 2", "Tile 1 x 2", "Brick 1 x 1", "Plate 1 x 4", "Slope 30 1 x 1 x 2/3", "Tile 1 x 1"] },
+      "80": { "count": 147, "items": ["Plate Round 1 x 1", "Plate 1 x 2", "Plate 1 x 1", "Brick 1 x 2", "Plate 2 x 2", "Tile 1 x 2", "Brick 1 x 1", "Plate 1 x 4", "Slope 30 1 x 1 x 2/3", "Tile 1 x 1"] },
+      "90": { "count": 412, "items": ["Plate Round 1 x 1", "Plate 1 x 2", "Plate 1 x 1", "Brick 1 x 2", "Plate 2 x 2", "Tile 1 x 2", "Brick 1 x 1", "Plate 1 x 4", "Slope 30 1 x 1 x 2/3", "Tile 1 x 1"] },
+      "95": { "count": 892, "items": ["Plate Round 1 x 1", "Plate 1 x 2", "Plate 1 x 1", "Brick 1 x 2", "Plate 2 x 2", "Tile 1 x 2", "Brick 1 x 1", "Plate 1 x 4", "Slope 30 1 x 1 x 2/3", "Tile 1 x 1"] },
+      "99": { "count": 2341, "items": ["Plate Round 1 x 1", "Plate 1 x 2", "Plate 1 x 1", "Brick 1 x 2", "Plate 2 x 2", "Tile 1 x 2", "Brick 1 x 1", "Plate 1 x 4", "Slope 30 1 x 1 x 2/3", "Tile 1 x 1"] }
+    }
+  },
+  "colors": {
+    "total_unique": 186,
+    "total_quantity": 917000,
+    "thresholds": {
+      "50": { "count": 4, "items": ["Black", "Light Bluish Gray", "White", "Dark Bluish Gray"] },
+      "80": { "count": 8, "items": ["Black", "Light Bluish Gray", "White", "Dark Bluish Gray", "Tan", "Red", "Yellow", "Blue"] },
+      "90": { "count": 12, "items": ["Black", "Light Bluish Gray", "White", "Dark Bluish Gray", "Tan", "Red", "Yellow", "Blue", "Dark Tan", "Reddish Brown", "Orange", "Green"] },
+      "95": { "count": 16, "items": ["Black", "Light Bluish Gray", "White", "Dark Bluish Gray", "Tan", "Red", "Yellow", "Blue", "Dark Tan", "Reddish Brown", "Orange", "Green", "Dark Red", "Bright Green", "Medium Azure", "Dark Blue"] },
+      "99": { "count": 25, "items": ["Black", "Light Bluish Gray", "White", "Dark Bluish Gray", "Tan", "Red", "Yellow", "Blue", "Dark Tan", "Reddish Brown"] }
+    }
+  }
+}
