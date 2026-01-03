@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { CoverageCurve, CoveragePoint } from './charts';
 
 // Data interfaces matching postprocess.ts output
@@ -41,6 +40,7 @@ interface CoverageAnalysisProps {
   coverageStats: CoverageStats;
   partData: CoveragePoint[];
   colorData: CoveragePoint[];
+  selectedPeriod: TimePeriod;
 }
 
 // Styles
@@ -61,35 +61,6 @@ const styles = {
     fontWeight: 600,
     color: '#24292f',
     margin: 0,
-  },
-  periodSelector: {
-    display: 'flex',
-    gap: '8px',
-    alignItems: 'center',
-  },
-  periodLabel: {
-    fontSize: '0.875rem',
-    color: '#57606a',
-  },
-  periodButton: {
-    padding: '6px 12px',
-    border: '1px solid #d0d7de',
-    borderRadius: '6px',
-    backgroundColor: '#ffffff',
-    color: '#24292f',
-    fontSize: '0.875rem',
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-  },
-  periodButtonActive: {
-    padding: '6px 12px',
-    border: '1px solid #0969da',
-    borderRadius: '6px',
-    backgroundColor: '#0969da',
-    color: '#ffffff',
-    fontSize: '0.875rem',
-    cursor: 'pointer',
-    fontWeight: 600,
   },
   // Summary cards
   cardsContainer: {
@@ -220,8 +191,8 @@ export function CoverageAnalysis({
   coverageStats,
   partData,
   colorData,
+  selectedPeriod,
 }: CoverageAnalysisProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('all_time');
   const thresholdKeys = ['50', '80', '90', '95', '99'];
 
   // Get the active coverage data based on selected period
@@ -234,29 +205,12 @@ export function CoverageAnalysis({
   const partsFor80Pct = activeCoverage.parts.thresholds['80']?.count || 0;
   const partoPartsPercent = calculateParetoCoverage(partData);
 
-  // Period selector component
-  const periodButtons = (Object.keys(PERIOD_LABELS) as TimePeriod[]).map((period) => (
-    <button
-      key={period}
-      style={selectedPeriod === period ? styles.periodButtonActive : styles.periodButton}
-      onClick={() => setSelectedPeriod(period)}
-    >
-      {PERIOD_LABELS[period]}
-    </button>
-  ));
-
   return (
     <div style={styles.container}>
       {/* Summary Cards */}
       <section>
         <div style={styles.headerRow}>
-          <h2 style={styles.sectionTitle}>Coverage Summary</h2>
-          {coverageStats.by_period && (
-            <div style={styles.periodSelector}>
-              <span style={styles.periodLabel}>Time Period:</span>
-              {periodButtons}
-            </div>
-          )}
+          <h2 style={styles.sectionTitle}>Coverage Summary ({PERIOD_LABELS[selectedPeriod]})</h2>
         </div>
         <div style={styles.cardsContainer}>
           <div style={styles.card}>

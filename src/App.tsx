@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Grid } from '@githubocto/flat-ui'
-import { CoverageAnalysis, CoverageStats } from './components/CoverageAnalysis'
+import { CoverageAnalysis, CoverageStats, TimePeriod } from './components/CoverageAnalysis'
 import { StackedBarChart, TrendsLineChart, CoveragePoint, DecadeColorData, YearTrend } from './components/charts'
 import { DateRangeFilter, YearRange } from './components/DateRangeFilter'
 
@@ -54,6 +54,14 @@ const CHART_DATASET_INFO: Record<ChartDataSet, { title: string; description: str
   },
 }
 
+// Helper to map yearRange to TimePeriod for coverage data
+function yearRangeToTimePeriod(yearRange: YearRange, currentYear: number): TimePeriod {
+  const yearsBack = currentYear - yearRange.startYear
+  if (yearsBack <= 5) return 'last_5_years'
+  if (yearsBack <= 10) return 'last_10_years'
+  return 'all_time'
+}
+
 // Button style helper
 const getButtonStyle = (isActive: boolean, variant: 'primary' | 'secondary' = 'primary') => ({
   padding: '0.5rem 1rem',
@@ -88,6 +96,9 @@ export default function App() {
   // Date range filter state
   const currentYear = new Date().getFullYear()
   const [yearRange, setYearRange] = useState<YearRange>({ startYear: 1949, endYear: currentYear })
+
+  // Map yearRange to TimePeriod for coverage data filtering
+  const selectedPeriod = useMemo(() => yearRangeToTimePeriod(yearRange, currentYear), [yearRange, currentYear])
 
   // Load table data
   useEffect(() => {
@@ -296,6 +307,7 @@ export default function App() {
               coverageStats={coverageStats}
               partData={partData}
               colorData={colorData}
+              selectedPeriod={selectedPeriod}
             />
           ) : (
             <div style={{ padding: '2rem', textAlign: 'center', color: '#57606a' }}>
