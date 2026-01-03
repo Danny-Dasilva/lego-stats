@@ -38,19 +38,22 @@ interface PeriodDataWithCurves {
 interface CoverageStats {
   parts: PeriodCoverageData;
   colors: PeriodCoverageData;
-  by_period?: {
-    all_time: PeriodDataWithCurves;
-    last_5_years: PeriodDataWithCurves;
-    last_10_years: PeriodDataWithCurves;
-  };
+  by_period?: Record<string, PeriodDataWithCurves>;
 }
 
-type TimePeriod = 'all_time' | 'last_5_years' | 'last_10_years';
+type TimePeriod = 'all_time' | 'last_5_years' | 'last_10_years'
+  | '2020s' | '2010s' | '2000s' | '1990s' | '1980s' | '1970s';
 
 const PERIOD_LABELS: Record<TimePeriod, string> = {
   all_time: 'All Time',
   last_5_years: 'Last 5 Years',
   last_10_years: 'Last 10 Years',
+  '2020s': '2020s',
+  '2010s': '2010s',
+  '2000s': '2000s',
+  '1990s': '1990s',
+  '1980s': '1980s',
+  '1970s': '1970s',
 };
 
 interface CoverageAnalysisProps {

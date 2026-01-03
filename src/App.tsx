@@ -56,9 +56,26 @@ const CHART_DATASET_INFO: Record<ChartDataSet, { title: string; description: str
 
 // Helper to map yearRange to TimePeriod for coverage data
 function yearRangeToTimePeriod(yearRange: YearRange, currentYear: number): TimePeriod {
-  const yearsBack = currentYear - yearRange.startYear
-  if (yearsBack <= 5) return 'last_5_years'
-  if (yearsBack <= 10) return 'last_10_years'
+  const { startYear, endYear } = yearRange
+
+  // Check if it's all-time (starting from earliest data)
+  if (startYear <= 1949 && endYear >= currentYear) return 'all_time'
+
+  // Check preset rolling periods (must end at current year)
+  if (endYear >= currentYear) {
+    const yearsBack = currentYear - startYear
+    if (yearsBack <= 5) return 'last_5_years'
+    if (yearsBack <= 10) return 'last_10_years'
+  }
+
+  // Map to decade based on start year
+  if (startYear >= 2020) return '2020s'
+  if (startYear >= 2010) return '2010s'
+  if (startYear >= 2000) return '2000s'
+  if (startYear >= 1990) return '1990s'
+  if (startYear >= 1980) return '1980s'
+  if (startYear >= 1970) return '1970s'
+
   return 'all_time'
 }
 

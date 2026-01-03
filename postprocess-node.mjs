@@ -481,8 +481,8 @@ async function main() {
   const fiveYearsAgo = currentYear - 5;
   const tenYearsAgo = currentYear - 10;
 
-  // Helper to compute coverage for a given year filter
-  function computePeriodCoverage(minYear) {
+  // Helper to compute coverage for a given year range
+  function computePeriodCoverage(minYear, maxYear = 9999) {
     // Aggregate parts by period
     const periodPartAgg = new Map();
     const periodColorAgg = new Map();
@@ -496,7 +496,7 @@ async function main() {
       if (!set) continue;
 
       const year = parseInt(set.year);
-      if (isNaN(year) || year < minYear) continue;
+      if (isNaN(year) || year < minYear || year > maxYear) continue;
 
       // Aggregate parts
       const existingPart = periodPartAgg.get(ip.part_num);
@@ -585,6 +585,22 @@ async function main() {
   const last5YearsCoverage = computePeriodCoverage(fiveYearsAgo);
   const last10YearsCoverage = computePeriodCoverage(tenYearsAgo);
 
+  // Compute decade-based periods
+  console.log("  Computing decade coverage...");
+  const coverageDecades = [
+    { key: "2020s", minYear: 2020, maxYear: 2029 },
+    { key: "2010s", minYear: 2010, maxYear: 2019 },
+    { key: "2000s", minYear: 2000, maxYear: 2009 },
+    { key: "1990s", minYear: 1990, maxYear: 1999 },
+    { key: "1980s", minYear: 1980, maxYear: 1989 },
+    { key: "1970s", minYear: 1970, maxYear: 1979 },
+  ];
+
+  const decadeCoverage = {};
+  for (const decade of coverageDecades) {
+    decadeCoverage[decade.key] = computePeriodCoverage(decade.minYear, decade.maxYear);
+  }
+
   // All-time coverage
   const allTimePartsCoverage = buildCoverageData(partFrequency, totalPartsQuantity);
   const allTimeColorsCoverage = buildCoverageData(colorStats, totalPieces);
@@ -603,6 +619,8 @@ async function main() {
       },
       last_5_years: last5YearsCoverage,
       last_10_years: last10YearsCoverage,
+      // Decade periods
+      ...decadeCoverage,
     },
   };
 
