@@ -56,9 +56,20 @@ const PERIOD_LABELS: Record<TimePeriod, string> = {
   '1970s': '1970s',
 };
 
+// Helper to get period label, handling custom ranges
+function getPeriodLabel(period: string): string {
+  if (period.startsWith('custom_')) {
+    const match = period.match(/^custom_(\d+)_(\d+)$/);
+    if (match) {
+      return `${match[1]}-${match[2]}`;
+    }
+  }
+  return PERIOD_LABELS[period as TimePeriod] || period;
+}
+
 interface CoverageAnalysisProps {
   coverageStats: CoverageStats;
-  selectedPeriod: TimePeriod;
+  selectedPeriod: string;  // Can be TimePeriod or custom_YYYY_YYYY format
 }
 
 // Styles
@@ -205,22 +216,168 @@ function findCoverageForTopN(data: CoveragePoint[], n: number): number {
   return point?.cumulative_percent ?? 0;
 }
 
+// Parse custom range period string (e.g., "custom_1992_2003" -> { startYear: 1992, endYear: 2003 })
+function parseCustomRange(period: string): { startYear: number; endYear: number } | null {
+  const match = period.match(/^custom_(\d+)_(\d+)$/);
+  if (match) {
+    return { startYear: parseInt(match[1], 10), endYear: parseInt(match[2], 10) };
+  }
+  return null;
+}
+
+// Aggregate coverage data from multiple year periods
+function aggregateYearData(
+  coverageStats: CoverageStats,
+  startYear: number,
+  endYear: number
+): PeriodDataWithCurves {
+  const byPeriod = coverageStats.by_period;
+  if (!byPeriod) {
+    return { parts: coverageStats.parts, colors: coverageStats.colors };
+  }
+
+  // Collect data from each year in the range
+  const partsQuantities = new Map<string, { name: string; quantity: number }>();
+  const colorsQuantities = new Map<string, { name: string; quantity: number }>();
+  let totalPartsQuantity = 0;
+  let totalColorsQuantity = 0;
+
+  for (let year = startYear; year <= endYear; year++) {
+    const yearKey = `year_${year}`;
+    const yearData = byPeriod[yearKey];
+    if (!yearData) continue;
+
+    // Aggregate parts from curve data (has full item list)
+    if (yearData.parts_curve) {
+      for (const item of yearData.parts_curve) {
+        const existing = partsQuantities.get(item.name);
+        if (existing) {
+          existing.quantity += item.quantity;
+        } else {
+          partsQuantities.set(item.name, { name: item.name, quantity: item.quantity });
+        }
+        totalPartsQuantity += item.quantity;
+      }
+    }
+
+    // Aggregate colors from curve data
+    if (yearData.colors_curve) {
+      for (const item of yearData.colors_curve) {
+        const existing = colorsQuantities.get(item.name);
+        if (existing) {
+          existing.quantity += item.quantity;
+        } else {
+          colorsQuantities.set(item.name, { name: item.name, quantity: item.quantity });
+        }
+        totalColorsQuantity += item.quantity;
+      }
+    }
+  }
+
+  // Sort by quantity descending and calculate cumulative percentages
+  const sortedParts = Array.from(partsQuantities.values())
+    .sort((a, b) => b.quantity - a.quantity);
+  const sortedColors = Array.from(colorsQuantities.values())
+    .sort((a, b) => b.quantity - a.quantity);
+
+  // Build curve data with cumulative percentages
+  let partsCumulative = 0;
+  const partsCurve: CurvePoint[] = sortedParts.map((item, index) => {
+    partsCumulative += item.quantity;
+    return {
+      rank: index + 1,
+      name: item.name,
+      quantity: item.quantity,
+      cumulative_percent: (partsCumulative / totalPartsQuantity) * 100,
+    };
+  });
+
+  let colorsCumulative = 0;
+  const colorsCurve: CurvePoint[] = sortedColors.map((item, index) => {
+    colorsCumulative += item.quantity;
+    return {
+      rank: index + 1,
+      name: item.name,
+      quantity: item.quantity,
+      cumulative_percent: (colorsCumulative / totalColorsQuantity) * 100,
+    };
+  });
+
+  // Calculate thresholds
+  const thresholdLevels = [50, 80, 90, 95, 99];
+  const partsThresholds: Record<string, CoverageThreshold> = {};
+  const colorsThresholds: Record<string, CoverageThreshold> = {};
+
+  for (const level of thresholdLevels) {
+    // Parts threshold
+    const partsIndex = partsCurve.findIndex(p => p.cumulative_percent >= level);
+    const partsCount = partsIndex >= 0 ? partsIndex + 1 : partsCurve.length;
+    partsThresholds[String(level)] = {
+      count: partsCount,
+      items: partsCurve.slice(0, Math.min(10, partsCount)).map(p => ({
+        name: p.name,
+        percent: (p.quantity / totalPartsQuantity) * 100,
+        cumulative_percent: p.cumulative_percent,
+      })),
+    };
+
+    // Colors threshold
+    const colorsIndex = colorsCurve.findIndex(c => c.cumulative_percent >= level);
+    const colorsCount = colorsIndex >= 0 ? colorsIndex + 1 : colorsCurve.length;
+    colorsThresholds[String(level)] = {
+      count: colorsCount,
+      items: colorsCurve.slice(0, Math.min(10, colorsCount)).map(c => ({
+        name: c.name,
+        percent: (c.quantity / totalColorsQuantity) * 100,
+        cumulative_percent: c.cumulative_percent,
+      })),
+    };
+  }
+
+  return {
+    parts: {
+      total_unique: sortedParts.length,
+      total_quantity: totalPartsQuantity,
+      thresholds: partsThresholds,
+    },
+    colors: {
+      total_unique: sortedColors.length,
+      total_quantity: totalColorsQuantity,
+      thresholds: colorsThresholds,
+    },
+    parts_curve: partsCurve,
+    colors_curve: colorsCurve,
+  };
+}
+
 export function CoverageAnalysis({
   coverageStats,
   selectedPeriod,
 }: CoverageAnalysisProps) {
   const thresholdKeys = ['50', '80', '90', '95', '99'];
 
-  // Get the active coverage data based on selected period
-  const activeCoverage = coverageStats.by_period
-    ? coverageStats.by_period[selectedPeriod]
-    : { parts: coverageStats.parts, colors: coverageStats.colors };
+  // Check if this is a custom range
+  const customRange = useMemo(() => parseCustomRange(selectedPeriod), [selectedPeriod]);
 
-  // Extract curve data from the selected period
+  // Get the active coverage data based on selected period
+  const activeCoverage = useMemo((): PeriodDataWithCurves => {
+    // Handle custom year ranges by aggregating per-year data
+    if (customRange) {
+      return aggregateYearData(coverageStats, customRange.startYear, customRange.endYear);
+    }
+
+    // Standard period lookup
+    if (coverageStats.by_period?.[selectedPeriod]) {
+      return coverageStats.by_period[selectedPeriod];
+    }
+
+    return { parts: coverageStats.parts, colors: coverageStats.colors };
+  }, [coverageStats, selectedPeriod, customRange]);
+
+  // Extract curve data from the active coverage
   const partCurveData = useMemo((): CoveragePoint[] => {
-    const periodData = coverageStats.by_period?.[selectedPeriod];
-    if (periodData?.parts_curve) {
-      return periodData.parts_curve.map(p => ({
+    if (activeCoverage.parts_curve) {
+      return activeCoverage.parts_curve.map(p => ({
         rank: p.rank,
         name: p.name,
         quantity: p.quantity,
@@ -228,12 +385,11 @@ export function CoverageAnalysis({
       }));
     }
     return [];
-  }, [coverageStats, selectedPeriod]);
+  }, [activeCoverage]);
 
   const colorCurveData = useMemo((): CoveragePoint[] => {
-    const periodData = coverageStats.by_period?.[selectedPeriod];
-    if (periodData?.colors_curve) {
-      return periodData.colors_curve.map(c => ({
+    if (activeCoverage.colors_curve) {
+      return activeCoverage.colors_curve.map(c => ({
         rank: c.rank,
         name: c.name,
         quantity: c.quantity,
@@ -241,7 +397,7 @@ export function CoverageAnalysis({
       }));
     }
     return [];
-  }, [coverageStats, selectedPeriod]);
+  }, [activeCoverage]);
 
   // Calculate insights using active period data
   const top100PartsCoverage = findCoverageForTopN(partCurveData, 100);
@@ -253,7 +409,7 @@ export function CoverageAnalysis({
       {/* Summary Cards */}
       <section>
         <div style={styles.headerRow}>
-          <h2 style={styles.sectionTitle}>Coverage Summary ({PERIOD_LABELS[selectedPeriod]})</h2>
+          <h2 style={styles.sectionTitle}>Coverage Summary ({getPeriodLabel(selectedPeriod)})</h2>
         </div>
         <div style={styles.cardsContainer}>
           <div style={styles.card}>

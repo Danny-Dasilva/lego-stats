@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Grid } from '@githubocto/flat-ui'
-import { CoverageAnalysis, CoverageStats, TimePeriod } from './components/CoverageAnalysis'
+import { CoverageAnalysis, CoverageStats } from './components/CoverageAnalysis'
 import { StackedBarChart, TrendsLineChart, DecadeColorData, YearTrend } from './components/charts'
 import { DateRangeFilter, YearRange } from './components/DateRangeFilter'
 
@@ -55,7 +55,7 @@ const CHART_DATASET_INFO: Record<ChartDataSet, { title: string; description: str
 }
 
 // Helper to map yearRange to TimePeriod for coverage data
-function yearRangeToTimePeriod(yearRange: YearRange, currentYear: number): TimePeriod {
+function yearRangeToTimePeriod(yearRange: YearRange, currentYear: number): string {
   const { startYear, endYear } = yearRange
 
   // Check if it's all-time (starting from earliest data)
@@ -68,15 +68,16 @@ function yearRangeToTimePeriod(yearRange: YearRange, currentYear: number): TimeP
     if (yearsBack <= 10) return 'last_10_years'
   }
 
-  // Map to decade based on start year
-  if (startYear >= 2020) return '2020s'
-  if (startYear >= 2010) return '2010s'
-  if (startYear >= 2000) return '2000s'
-  if (startYear >= 1990) return '1990s'
-  if (startYear >= 1980) return '1980s'
-  if (startYear >= 1970) return '1970s'
+  // Check for exact decade matches
+  const decadeStart = Math.floor(startYear / 10) * 10
+  const decadeEnd = decadeStart + 9
+  if (startYear === decadeStart && endYear === decadeEnd) {
+    // Exact decade selection (e.g., 1990-1999 -> "1990s")
+    return `${decadeStart}s`
+  }
 
-  return 'all_time'
+  // For custom ranges, return a special key that CoverageAnalysis can parse
+  return `custom_${startYear}_${endYear}`
 }
 
 // Button style helper

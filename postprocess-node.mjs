@@ -601,6 +601,13 @@ async function main() {
     decadeCoverage[decade.key] = computePeriodCoverage(decade.minYear, decade.maxYear);
   }
 
+  // Generate per-year coverage for custom year range filtering
+  console.log("  Computing per-year coverage...");
+  const perYearCoverage = {};
+  for (let year = 1949; year <= currentYear; year++) {
+    perYearCoverage[`year_${year}`] = computePeriodCoverage(year, year);
+  }
+
   // All-time coverage
   const allTimePartsCoverage = buildCoverageData(partFrequency, totalPartsQuantity);
   const allTimeColorsCoverage = buildCoverageData(colorStats, totalPieces);
@@ -621,6 +628,8 @@ async function main() {
       last_10_years: last10YearsCoverage,
       // Decade periods
       ...decadeCoverage,
+      // Per-year periods for custom year range filtering
+      ...perYearCoverage,
     },
   };
 
