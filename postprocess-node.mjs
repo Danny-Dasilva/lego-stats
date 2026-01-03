@@ -412,28 +412,197 @@ async function main() {
     };
   }
 
+  // Build coverage data structure
+  function buildCoverageData(items, totalQuantity) {
+    return {
+      total_unique: items.length,
+      total_quantity: totalQuantity,
+      thresholds: {
+        "50": getThresholdItems(items, 50),
+        "80": getThresholdItems(items, 80),
+        "90": getThresholdItems(items, 90),
+        "95": getThresholdItems(items, 95),
+        "99": getThresholdItems(items, 99),
+      },
+    };
+  }
+
+  // Sample curve points logarithmically for efficient rendering
+  // The curve uses log scale on x-axis, so sample more densely at lower ranks
+  function sampleCurvePoints(data, maxPoints = 500) {
+    if (data.length <= maxPoints) return data;
+
+    const sampled = [];
+    const seenRanks = new Set();
+    const logMax = Math.log10(data.length);
+
+    for (let i = 0; i < maxPoints; i++) {
+      const logRank = (i / maxPoints) * logMax;
+      const rank = Math.max(1, Math.round(Math.pow(10, logRank)));
+      const idx = Math.min(rank - 1, data.length - 1);
+
+      if (!seenRanks.has(data[idx].rank)) {
+        seenRanks.add(data[idx].rank);
+        sampled.push(data[idx]);
+      }
+    }
+
+    // Always include first and last points
+    if (!seenRanks.has(data[0].rank)) {
+      sampled.unshift(data[0]);
+    }
+    if (!seenRanks.has(data[data.length - 1].rank)) {
+      sampled.push(data[data.length - 1]);
+    }
+
+    return sampled.sort((a, b) => a.rank - b.rank);
+  }
+
+  // Create curve point arrays for all-time data
+  const allTimePartsCurve = partFrequency.map((p) => ({
+    rank: p.rank,
+    name: p.name,
+    quantity: p.quantity,
+    cumulative_percent: p.cumulative_percent,
+  }));
+
+  const allTimeColorsCurve = colorStats.map((c) => ({
+    rank: c.rank,
+    name: c.name,
+    quantity: c.quantity,
+    cumulative_percent: c.cumulative_percent,
+  }));
+
+  // ===== Period-Filtered Coverage Stats =====
+  console.log("  Computing period-filtered coverage stats...");
+
+  // Get the current year for period calculations
+  const currentYear = new Date().getFullYear();
+  const fiveYearsAgo = currentYear - 5;
+  const tenYearsAgo = currentYear - 10;
+
+  // Helper to compute coverage for a given year filter
+  function computePeriodCoverage(minYear) {
+    // Aggregate parts by period
+    const periodPartAgg = new Map();
+    const periodColorAgg = new Map();
+
+    for (const ip of inventoryParts) {
+      const qty = parseInt(ip.quantity) || 0;
+      const setNum = inventoryToSetMap.get(ip.inventory_id);
+      if (!setNum) continue;
+
+      const set = setMap.get(setNum);
+      if (!set) continue;
+
+      const year = parseInt(set.year);
+      if (isNaN(year) || year < minYear) continue;
+
+      // Aggregate parts
+      const existingPart = periodPartAgg.get(ip.part_num);
+      if (existingPart) {
+        existingPart.quantity += qty;
+      } else {
+        periodPartAgg.set(ip.part_num, { part_num: ip.part_num, quantity: qty });
+      }
+
+      // Aggregate colors
+      const color = colorMap.get(ip.color_id);
+      if (color) {
+        const colorKey = `${color.rgb}-${color.name}`;
+        const existingColor = periodColorAgg.get(colorKey);
+        if (existingColor) {
+          existingColor.quantity += qty;
+        } else {
+          periodColorAgg.set(colorKey, { name: color.name, color: `#${color.rgb}`, quantity: qty });
+        }
+      }
+    }
+
+    // Compute parts coverage for period
+    const periodParts = Array.from(periodPartAgg.values()).sort((a, b) => b.quantity - a.quantity);
+    const periodPartsTotal = periodParts.reduce((sum, p) => sum + p.quantity, 0);
+
+    let periodPartCumulativeSum = 0;
+    const periodPartFrequency = periodParts.map((p, index) => {
+      const part = partMap.get(p.part_num);
+      const percent = periodPartsTotal > 0 ? parseFloat(((p.quantity / periodPartsTotal) * 100).toFixed(4)) : 0;
+      periodPartCumulativeSum += p.quantity;
+      const cumulative_percent =
+        periodPartsTotal > 0 ? parseFloat(((periodPartCumulativeSum / periodPartsTotal) * 100).toFixed(4)) : 0;
+      return {
+        name: part?.name || "Unknown",
+        percent,
+        cumulative_percent,
+        rank: index + 1,
+        quantity: p.quantity,
+      };
+    });
+
+    // Compute colors coverage for period
+    const periodColors = Array.from(periodColorAgg.values()).sort((a, b) => b.quantity - a.quantity);
+    const periodColorsTotal = periodColors.reduce((sum, c) => sum + c.quantity, 0);
+
+    let periodColorCumulativeSum = 0;
+    const periodColorStats = periodColors.map((c, index) => {
+      const percent = periodColorsTotal > 0 ? parseFloat(((c.quantity / periodColorsTotal) * 100).toFixed(4)) : 0;
+      periodColorCumulativeSum += c.quantity;
+      const cumulative_percent =
+        periodColorsTotal > 0 ? parseFloat(((periodColorCumulativeSum / periodColorsTotal) * 100).toFixed(4)) : 0;
+      return {
+        name: c.name,
+        percent,
+        cumulative_percent,
+        rank: index + 1,
+        quantity: c.quantity,
+      };
+    });
+
+    // Create curve point arrays
+    const partsCurve = periodPartFrequency.map((p) => ({
+      rank: p.rank,
+      name: p.name,
+      quantity: p.quantity,
+      cumulative_percent: p.cumulative_percent,
+    }));
+
+    const colorsCurve = periodColorStats.map((c) => ({
+      rank: c.rank,
+      name: c.name,
+      quantity: c.quantity,
+      cumulative_percent: c.cumulative_percent,
+    }));
+
+    return {
+      parts: buildCoverageData(periodPartFrequency, periodPartsTotal),
+      colors: buildCoverageData(periodColorStats, periodColorsTotal),
+      parts_curve: sampleCurvePoints(partsCurve),
+      colors_curve: sampleCurvePoints(colorsCurve),
+    };
+  }
+
+  // Compute for each period
+  const last5YearsCoverage = computePeriodCoverage(fiveYearsAgo);
+  const last10YearsCoverage = computePeriodCoverage(tenYearsAgo);
+
+  // All-time coverage
+  const allTimePartsCoverage = buildCoverageData(partFrequency, totalPartsQuantity);
+  const allTimeColorsCoverage = buildCoverageData(colorStats, totalPieces);
+
   const coverageStats = {
-    parts: {
-      total_unique: partFrequency.length,
-      total_quantity: totalPartsQuantity,
-      thresholds: {
-        "50": getThresholdItems(partFrequency, 50),
-        "80": getThresholdItems(partFrequency, 80),
-        "90": getThresholdItems(partFrequency, 90),
-        "95": getThresholdItems(partFrequency, 95),
-        "99": getThresholdItems(partFrequency, 99),
+    // Keep backward compatibility with top-level all-time stats
+    parts: allTimePartsCoverage,
+    colors: allTimeColorsCoverage,
+    // New period-based stats with curve data for chart rendering
+    by_period: {
+      all_time: {
+        parts: allTimePartsCoverage,
+        colors: allTimeColorsCoverage,
+        parts_curve: sampleCurvePoints(allTimePartsCurve),
+        colors_curve: sampleCurvePoints(allTimeColorsCurve),
       },
-    },
-    colors: {
-      total_unique: colorStats.length,
-      total_quantity: totalPieces,
-      thresholds: {
-        "50": getThresholdItems(colorStats, 50),
-        "80": getThresholdItems(colorStats, 80),
-        "90": getThresholdItems(colorStats, 90),
-        "95": getThresholdItems(colorStats, 95),
-        "99": getThresholdItems(colorStats, 99),
-      },
+      last_5_years: last5YearsCoverage,
+      last_10_years: last10YearsCoverage,
     },
   };
 

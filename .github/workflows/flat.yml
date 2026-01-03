@@ -8,6 +8,8 @@ on:
 jobs:
   scheduled:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write    # Allow pushing commits
     steps:
       - name: Setup Deno
         uses: denoland/setup-deno@main
