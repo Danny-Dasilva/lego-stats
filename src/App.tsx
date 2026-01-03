@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Grid } from '@githubocto/flat-ui'
 import { CoverageAnalysis, CoverageStats } from './components/CoverageAnalysis'
 import { StackedBarChart, TrendsLineChart, CoveragePoint, DecadeColorData, YearTrend } from './components/charts'
+import { DateRangeFilter, YearRange } from './components/DateRangeFilter'
 
 type ViewMode = 'tables' | 'charts'
 type TableDataSet = 'parts' | 'colors' | 'trends'
@@ -84,6 +85,10 @@ export default function App() {
 
   const [loading, setLoading] = useState(true)
 
+  // Date range filter state
+  const currentYear = new Date().getFullYear()
+  const [yearRange, setYearRange] = useState<YearRange>({ startYear: 1949, endYear: currentYear })
+
   // Load table data
   useEffect(() => {
     if (viewMode !== 'tables') return
@@ -92,12 +97,12 @@ export default function App() {
     fetch(TABLE_DATA_FILES[activeTableDataset])
       .then((res) => res.json())
       .then((json) => {
-        // For parts data, remove empty/broken image URLs to avoid broken images
-        // The Grid component will just show the URL text for valid URLs
+        // For parts data, only remove empty image URLs
+        // Valid Rebrickable CDN URLs (cdn.rebrickable.com) should be kept
         if (activeTableDataset === 'parts') {
           const processedData = json.map((item: any) => {
-            // Remove the image field if it's empty or has the broken ldraw URL pattern
-            if (!item.image || item.image.includes('/media/parts/ldraw/')) {
+            // Remove the image field only if it's empty
+            if (!item.image || item.image === '') {
               const { image, ...rest } = item
               return rest
             }
@@ -258,6 +263,16 @@ export default function App() {
                 ))}
               </>
             )}
+
+            <span style={{ color: '#d0d7de', margin: '0 0.25rem' }}>|</span>
+
+            {/* Date Range Filter */}
+            <DateRangeFilter
+              minYear={1949}
+              maxYear={currentYear}
+              initialRange={yearRange}
+              onChange={setYearRange}
+            />
           </nav>
         </div>
       </header>
