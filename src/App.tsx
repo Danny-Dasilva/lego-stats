@@ -116,22 +116,24 @@ export default function App() {
       ])
         .then(([coverage, parts, colors]) => {
           setCoverageStats(coverage)
-          // Transform parts data to CoveragePoint format
+          // Transform parts data to CoveragePoint format with defensive null checks
+          const partsArray = Array.isArray(parts) ? parts : []
           setPartData(
-            parts.map((p: any, i: number) => ({
-              rank: p.rank || i + 1,
-              name: p.name,
-              quantity: p.quantity,
-              cumulative_percent: p.cumulative_percent,
+            partsArray.map((p: any, i: number) => ({
+              rank: p?.rank ?? i + 1,
+              name: p?.name ?? 'Unknown Part',
+              quantity: p?.quantity ?? 0,
+              cumulative_percent: p?.cumulative_percent ?? 0,
             }))
           )
-          // Transform colors data to CoveragePoint format
+          // Transform colors data to CoveragePoint format with defensive null checks
+          const colorsArray = Array.isArray(colors) ? colors : []
           setColorData(
-            colors.map((c: any, i: number) => ({
-              rank: c.rank || i + 1,
-              name: c.name,
-              quantity: c.quantity,
-              cumulative_percent: c.cumulative_percent,
+            colorsArray.map((c: any, i: number) => ({
+              rank: c?.rank ?? i + 1,
+              name: c?.name ?? 'Unknown Color',
+              quantity: c?.quantity ?? 0,
+              cumulative_percent: c?.cumulative_percent ?? 0,
             }))
           )
           setLoading(false)
@@ -245,12 +247,18 @@ export default function App() {
           <div style={{ height: '100%' }}>
             <Grid data={tableData} />
           </div>
-        ) : activeChartDataset === 'coverage' && coverageStats ? (
-          <CoverageAnalysis
-            coverageStats={coverageStats}
-            partData={partData}
-            colorData={colorData}
-          />
+        ) : activeChartDataset === 'coverage' ? (
+          coverageStats ? (
+            <CoverageAnalysis
+              coverageStats={coverageStats}
+              partData={partData}
+              colorData={colorData}
+            />
+          ) : (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#57606a' }}>
+              Loading coverage data...
+            </div>
+          )
         ) : activeChartDataset === 'colorTrends' ? (
           <div style={{ padding: '24px' }}>
             <StackedBarChart data={decadeColorsData} />

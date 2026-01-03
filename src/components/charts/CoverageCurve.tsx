@@ -333,11 +333,11 @@ export function CoverageCurve({
                 {tooltip.content && (
                   <div>
                     <div style={{ fontWeight: 600, marginBottom: '4px' }}>
-                      Rank #{tooltip.content.rank.toLocaleString()}
+                      Rank #{(tooltip.content.rank ?? 0).toLocaleString()}
                     </div>
-                    <div style={{ marginBottom: '2px' }}>{tooltip.content.name}</div>
+                    <div style={{ marginBottom: '2px' }}>{tooltip.content.name ?? 'Unknown'}</div>
                     <div style={{ color: '#8b949e' }}>
-                      {tooltip.content.cumulative.toFixed(2)}% cumulative
+                      {(tooltip.content.cumulative ?? 0).toFixed(2)}% cumulative
                     </div>
                   </div>
                 )}

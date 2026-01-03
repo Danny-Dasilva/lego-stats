@@ -1,24 +1,539 @@
 {
   "parts": {
-    "total_unique": 8565,
-    "total_quantity": 917000,
+    "total_unique": 59231,
+    "total_quantity": 4928408,
     "thresholds": {
-      "50": { "count": 23, "items": ["Plate Round 1 x 1", "Plate 1 x 2", "Plate 1 x 1", "Brick 1 x 2", "Plate 2 x 2", "Tile 1 x 2", "Brick 1 x 1", "Plate 1 x 4", "Slope 30 1 x 1 x 2/3", "Tile 1 x 1"] },
-      "80": { "count": 147, "items": ["Plate Round 1 x 1", "Plate 1 x 2", "Plate 1 x 1", "Brick 1 x 2", "Plate 2 x 2", "Tile 1 x 2", "Brick 1 x 1", "Plate 1 x 4", "Slope 30 1 x 1 x 2/3", "Tile 1 x 1"] },
-      "90": { "count": 412, "items": ["Plate Round 1 x 1", "Plate 1 x 2", "Plate 1 x 1", "Brick 1 x 2", "Plate 2 x 2", "Tile 1 x 2", "Brick 1 x 1", "Plate 1 x 4", "Slope 30 1 x 1 x 2/3", "Tile 1 x 1"] },
-      "95": { "count": 892, "items": ["Plate Round 1 x 1", "Plate 1 x 2", "Plate 1 x 1", "Brick 1 x 2", "Plate 2 x 2", "Tile 1 x 2", "Brick 1 x 1", "Plate 1 x 4", "Slope 30 1 x 1 x 2/3", "Tile 1 x 1"] },
-      "99": { "count": 2341, "items": ["Plate Round 1 x 1", "Plate 1 x 2", "Plate 1 x 1", "Brick 1 x 2", "Plate 2 x 2", "Tile 1 x 2", "Brick 1 x 1", "Plate 1 x 4", "Slope 30 1 x 1 x 2/3", "Tile 1 x 1"] }
+      "50": {
+        "count": 69,
+        "items": [
+          {
+            "name": "Plate 1 x 2",
+            "percent": 3.2728,
+            "cumulative_percent": 3.2728
+          },
+          {
+            "name": "Plate Round 1 x 1 with Solid Stud",
+            "percent": 2.7371,
+            "cumulative_percent": 6.0099
+          },
+          {
+            "name": "Plate 1 x 1",
+            "percent": 2.3185,
+            "cumulative_percent": 8.3284
+          },
+          {
+            "name": "Brick 1 x 2",
+            "percent": 2.2756,
+            "cumulative_percent": 10.604
+          },
+          {
+            "name": "Brick 1 x 1",
+            "percent": 1.8094,
+            "cumulative_percent": 12.4134
+          },
+          {
+            "name": "Plate 1 x 4",
+            "percent": 1.469,
+            "cumulative_percent": 13.8824
+          },
+          {
+            "name": "Technic Pin with Friction Ridges Lengthwise and Center Slots",
+            "percent": 1.435,
+            "cumulative_percent": 15.3174
+          },
+          {
+            "name": "Tile 1 x 2 with Groove",
+            "percent": 1.3224,
+            "cumulative_percent": 16.6397
+          },
+          {
+            "name": "Slope 30° 1 x 1 x 2/3 (Cheese Slope)",
+            "percent": 1.2668,
+            "cumulative_percent": 17.9066
+          },
+          {
+            "name": "Brick 2 x 2",
+            "percent": 1.226,
+            "cumulative_percent": 19.1326
+          }
+        ]
+      },
+      "80": {
+        "count": 426,
+        "items": [
+          {
+            "name": "Plate 1 x 2",
+            "percent": 3.2728,
+            "cumulative_percent": 3.2728
+          },
+          {
+            "name": "Plate Round 1 x 1 with Solid Stud",
+            "percent": 2.7371,
+            "cumulative_percent": 6.0099
+          },
+          {
+            "name": "Plate 1 x 1",
+            "percent": 2.3185,
+            "cumulative_percent": 8.3284
+          },
+          {
+            "name": "Brick 1 x 2",
+            "percent": 2.2756,
+            "cumulative_percent": 10.604
+          },
+          {
+            "name": "Brick 1 x 1",
+            "percent": 1.8094,
+            "cumulative_percent": 12.4134
+          },
+          {
+            "name": "Plate 1 x 4",
+            "percent": 1.469,
+            "cumulative_percent": 13.8824
+          },
+          {
+            "name": "Technic Pin with Friction Ridges Lengthwise and Center Slots",
+            "percent": 1.435,
+            "cumulative_percent": 15.3174
+          },
+          {
+            "name": "Tile 1 x 2 with Groove",
+            "percent": 1.3224,
+            "cumulative_percent": 16.6397
+          },
+          {
+            "name": "Slope 30° 1 x 1 x 2/3 (Cheese Slope)",
+            "percent": 1.2668,
+            "cumulative_percent": 17.9066
+          },
+          {
+            "name": "Brick 2 x 2",
+            "percent": 1.226,
+            "cumulative_percent": 19.1326
+          }
+        ]
+      },
+      "90": {
+        "count": 1036,
+        "items": [
+          {
+            "name": "Plate 1 x 2",
+            "percent": 3.2728,
+            "cumulative_percent": 3.2728
+          },
+          {
+            "name": "Plate Round 1 x 1 with Solid Stud",
+            "percent": 2.7371,
+            "cumulative_percent": 6.0099
+          },
+          {
+            "name": "Plate 1 x 1",
+            "percent": 2.3185,
+            "cumulative_percent": 8.3284
+          },
+          {
+            "name": "Brick 1 x 2",
+            "percent": 2.2756,
+            "cumulative_percent": 10.604
+          },
+          {
+            "name": "Brick 1 x 1",
+            "percent": 1.8094,
+            "cumulative_percent": 12.4134
+          },
+          {
+            "name": "Plate 1 x 4",
+            "percent": 1.469,
+            "cumulative_percent": 13.8824
+          },
+          {
+            "name": "Technic Pin with Friction Ridges Lengthwise and Center Slots",
+            "percent": 1.435,
+            "cumulative_percent": 15.3174
+          },
+          {
+            "name": "Tile 1 x 2 with Groove",
+            "percent": 1.3224,
+            "cumulative_percent": 16.6397
+          },
+          {
+            "name": "Slope 30° 1 x 1 x 2/3 (Cheese Slope)",
+            "percent": 1.2668,
+            "cumulative_percent": 17.9066
+          },
+          {
+            "name": "Brick 2 x 2",
+            "percent": 1.226,
+            "cumulative_percent": 19.1326
+          }
+        ]
+      },
+      "95": {
+        "count": 2289,
+        "items": [
+          {
+            "name": "Plate 1 x 2",
+            "percent": 3.2728,
+            "cumulative_percent": 3.2728
+          },
+          {
+            "name": "Plate Round 1 x 1 with Solid Stud",
+            "percent": 2.7371,
+            "cumulative_percent": 6.0099
+          },
+          {
+            "name": "Plate 1 x 1",
+            "percent": 2.3185,
+            "cumulative_percent": 8.3284
+          },
+          {
+            "name": "Brick 1 x 2",
+            "percent": 2.2756,
+            "cumulative_percent": 10.604
+          },
+          {
+            "name": "Brick 1 x 1",
+            "percent": 1.8094,
+            "cumulative_percent": 12.4134
+          },
+          {
+            "name": "Plate 1 x 4",
+            "percent": 1.469,
+            "cumulative_percent": 13.8824
+          },
+          {
+            "name": "Technic Pin with Friction Ridges Lengthwise and Center Slots",
+            "percent": 1.435,
+            "cumulative_percent": 15.3174
+          },
+          {
+            "name": "Tile 1 x 2 with Groove",
+            "percent": 1.3224,
+            "cumulative_percent": 16.6397
+          },
+          {
+            "name": "Slope 30° 1 x 1 x 2/3 (Cheese Slope)",
+            "percent": 1.2668,
+            "cumulative_percent": 17.9066
+          },
+          {
+            "name": "Brick 2 x 2",
+            "percent": 1.226,
+            "cumulative_percent": 19.1326
+          }
+        ]
+      },
+      "99": {
+        "count": 17506,
+        "items": [
+          {
+            "name": "Plate 1 x 2",
+            "percent": 3.2728,
+            "cumulative_percent": 3.2728
+          },
+          {
+            "name": "Plate Round 1 x 1 with Solid Stud",
+            "percent": 2.7371,
+            "cumulative_percent": 6.0099
+          },
+          {
+            "name": "Plate 1 x 1",
+            "percent": 2.3185,
+            "cumulative_percent": 8.3284
+          },
+          {
+            "name": "Brick 1 x 2",
+            "percent": 2.2756,
+            "cumulative_percent": 10.604
+          },
+          {
+            "name": "Brick 1 x 1",
+            "percent": 1.8094,
+            "cumulative_percent": 12.4134
+          },
+          {
+            "name": "Plate 1 x 4",
+            "percent": 1.469,
+            "cumulative_percent": 13.8824
+          },
+          {
+            "name": "Technic Pin with Friction Ridges Lengthwise and Center Slots",
+            "percent": 1.435,
+            "cumulative_percent": 15.3174
+          },
+          {
+            "name": "Tile 1 x 2 with Groove",
+            "percent": 1.3224,
+            "cumulative_percent": 16.6397
+          },
+          {
+            "name": "Slope 30° 1 x 1 x 2/3 (Cheese Slope)",
+            "percent": 1.2668,
+            "cumulative_percent": 17.9066
+          },
+          {
+            "name": "Brick 2 x 2",
+            "percent": 1.226,
+            "cumulative_percent": 19.1326
+          }
+        ]
+      }
     }
   },
   "colors": {
-    "total_unique": 186,
-    "total_quantity": 917000,
+    "total_unique": 263,
+    "total_quantity": 4928408,
     "thresholds": {
-      "50": { "count": 4, "items": ["Black", "Light Bluish Gray", "White", "Dark Bluish Gray"] },
-      "80": { "count": 8, "items": ["Black", "Light Bluish Gray", "White", "Dark Bluish Gray", "Tan", "Red", "Yellow", "Blue"] },
-      "90": { "count": 12, "items": ["Black", "Light Bluish Gray", "White", "Dark Bluish Gray", "Tan", "Red", "Yellow", "Blue", "Dark Tan", "Reddish Brown", "Orange", "Green"] },
-      "95": { "count": 16, "items": ["Black", "Light Bluish Gray", "White", "Dark Bluish Gray", "Tan", "Red", "Yellow", "Blue", "Dark Tan", "Reddish Brown", "Orange", "Green", "Dark Red", "Bright Green", "Medium Azure", "Dark Blue"] },
-      "99": { "count": 25, "items": ["Black", "Light Bluish Gray", "White", "Dark Bluish Gray", "Tan", "Red", "Yellow", "Blue", "Dark Tan", "Reddish Brown"] }
+      "50": {
+        "count": 5,
+        "items": [
+          {
+            "name": "Black",
+            "percent": 18.2752,
+            "cumulative_percent": 18.2752
+          },
+          {
+            "name": "Light Bluish Gray",
+            "percent": 11.4376,
+            "cumulative_percent": 29.7129
+          },
+          {
+            "name": "White",
+            "percent": 10.9408,
+            "cumulative_percent": 40.6537
+          },
+          {
+            "name": "Dark Bluish Gray",
+            "percent": 8.1571,
+            "cumulative_percent": 48.8108
+          },
+          {
+            "name": "Red",
+            "percent": 6.8829,
+            "cumulative_percent": 55.6937
+          }
+        ]
+      },
+      "80": {
+        "count": 14,
+        "items": [
+          {
+            "name": "Black",
+            "percent": 18.2752,
+            "cumulative_percent": 18.2752
+          },
+          {
+            "name": "Light Bluish Gray",
+            "percent": 11.4376,
+            "cumulative_percent": 29.7129
+          },
+          {
+            "name": "White",
+            "percent": 10.9408,
+            "cumulative_percent": 40.6537
+          },
+          {
+            "name": "Dark Bluish Gray",
+            "percent": 8.1571,
+            "cumulative_percent": 48.8108
+          },
+          {
+            "name": "Red",
+            "percent": 6.8829,
+            "cumulative_percent": 55.6937
+          },
+          {
+            "name": "Blue",
+            "percent": 4.5205,
+            "cumulative_percent": 60.2142
+          },
+          {
+            "name": "Yellow",
+            "percent": 4.5083,
+            "cumulative_percent": 64.7225
+          },
+          {
+            "name": "Tan",
+            "percent": 4.1132,
+            "cumulative_percent": 68.8357
+          },
+          {
+            "name": "Reddish Brown",
+            "percent": 3.8041,
+            "cumulative_percent": 72.6398
+          },
+          {
+            "name": "Light Gray",
+            "percent": 2.1443,
+            "cumulative_percent": 74.7841
+          }
+        ]
+      },
+      "90": {
+        "count": 27,
+        "items": [
+          {
+            "name": "Black",
+            "percent": 18.2752,
+            "cumulative_percent": 18.2752
+          },
+          {
+            "name": "Light Bluish Gray",
+            "percent": 11.4376,
+            "cumulative_percent": 29.7129
+          },
+          {
+            "name": "White",
+            "percent": 10.9408,
+            "cumulative_percent": 40.6537
+          },
+          {
+            "name": "Dark Bluish Gray",
+            "percent": 8.1571,
+            "cumulative_percent": 48.8108
+          },
+          {
+            "name": "Red",
+            "percent": 6.8829,
+            "cumulative_percent": 55.6937
+          },
+          {
+            "name": "Blue",
+            "percent": 4.5205,
+            "cumulative_percent": 60.2142
+          },
+          {
+            "name": "Yellow",
+            "percent": 4.5083,
+            "cumulative_percent": 64.7225
+          },
+          {
+            "name": "Tan",
+            "percent": 4.1132,
+            "cumulative_percent": 68.8357
+          },
+          {
+            "name": "Reddish Brown",
+            "percent": 3.8041,
+            "cumulative_percent": 72.6398
+          },
+          {
+            "name": "Light Gray",
+            "percent": 2.1443,
+            "cumulative_percent": 74.7841
+          }
+        ]
+      },
+      "95": {
+        "count": 40,
+        "items": [
+          {
+            "name": "Black",
+            "percent": 18.2752,
+            "cumulative_percent": 18.2752
+          },
+          {
+            "name": "Light Bluish Gray",
+            "percent": 11.4376,
+            "cumulative_percent": 29.7129
+          },
+          {
+            "name": "White",
+            "percent": 10.9408,
+            "cumulative_percent": 40.6537
+          },
+          {
+            "name": "Dark Bluish Gray",
+            "percent": 8.1571,
+            "cumulative_percent": 48.8108
+          },
+          {
+            "name": "Red",
+            "percent": 6.8829,
+            "cumulative_percent": 55.6937
+          },
+          {
+            "name": "Blue",
+            "percent": 4.5205,
+            "cumulative_percent": 60.2142
+          },
+          {
+            "name": "Yellow",
+            "percent": 4.5083,
+            "cumulative_percent": 64.7225
+          },
+          {
+            "name": "Tan",
+            "percent": 4.1132,
+            "cumulative_percent": 68.8357
+          },
+          {
+            "name": "Reddish Brown",
+            "percent": 3.8041,
+            "cumulative_percent": 72.6398
+          },
+          {
+            "name": "Light Gray",
+            "percent": 2.1443,
+            "cumulative_percent": 74.7841
+          }
+        ]
+      },
+      "99": {
+        "count": 64,
+        "items": [
+          {
+            "name": "Black",
+            "percent": 18.2752,
+            "cumulative_percent": 18.2752
+          },
+          {
+            "name": "Light Bluish Gray",
+            "percent": 11.4376,
+            "cumulative_percent": 29.7129
+          },
+          {
+            "name": "White",
+            "percent": 10.9408,
+            "cumulative_percent": 40.6537
+          },
+          {
+            "name": "Dark Bluish Gray",
+            "percent": 8.1571,
+            "cumulative_percent": 48.8108
+          },
+          {
+            "name": "Red",
+            "percent": 6.8829,
+            "cumulative_percent": 55.6937
+          },
+          {
+            "name": "Blue",
+            "percent": 4.5205,
+            "cumulative_percent": 60.2142
+          },
+          {
+            "name": "Yellow",
+            "percent": 4.5083,
+            "cumulative_percent": 64.7225
+          },
+          {
+            "name": "Tan",
+            "percent": 4.1132,
+            "cumulative_percent": 68.8357
+          },
+          {
+            "name": "Reddish Brown",
+            "percent": 3.8041,
+            "cumulative_percent": 72.6398
+          },
+          {
+            "name": "Light Gray",
+            "percent": 2.1443,
+            "cumulative_percent": 74.7841
+          }
+        ]
+      }
     }
   }
 }

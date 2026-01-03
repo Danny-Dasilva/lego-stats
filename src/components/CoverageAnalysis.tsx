@@ -1,9 +1,15 @@
 import { CoverageCurve, CoveragePoint } from './charts';
 
 // Data interfaces matching postprocess.ts output
+interface CoverageThresholdItem {
+  name: string;
+  percent: number;
+  cumulative_percent: number;
+}
+
 interface CoverageThreshold {
   count: number;
-  items: string[];  // first 10 item names for display
+  items: CoverageThresholdItem[];  // first 10 items with details
 }
 
 interface CoverageStats {
@@ -154,13 +160,13 @@ function calculateParetoCoverage(data: CoveragePoint[]): number {
   if (data.length === 0) return 0;
   const top20Index = Math.floor(data.length * 0.2);
   const top20Point = data[top20Index - 1];
-  return top20Point ? top20Point.cumulative_percent : 0;
+  return top20Point?.cumulative_percent ?? 0;
 }
 
 // Find coverage for top N items
 function findCoverageForTopN(data: CoveragePoint[], n: number): number {
   const point = data.find(d => d.rank === n);
-  return point ? point.cumulative_percent : 0;
+  return point?.cumulative_percent ?? 0;
 }
 
 export function CoverageAnalysis({

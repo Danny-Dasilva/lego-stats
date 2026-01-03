@@ -4,8 +4,8 @@
  * Ported from charts_lego.ipynb pandas logic to Deno/TypeScript
  *
  * Input files:
- *   - data/colors.csv
- *   - data/parts.csv
+ *   - data/colors.csv.gz
+ *   - data/parts.csv.gz
  *   - data/sets.csv.gz (for year data)
  *   - data/inventories.csv.gz (links sets to inventories)
  *   - data/inventory_parts.csv.gz (decompressed automatically by Flat)
@@ -165,12 +165,12 @@ async function main() {
   const filename = Deno.args[0]; // The downloaded file passed by Flat
   console.log(`Postprocessing triggered by: ${filename}`);
 
-  // Read all CSV files
-  console.log("Reading colors.csv...");
-  const colors = await readCSV("data/colors.csv") as Color[];
+  // Read all CSV files (all now gzipped from Rebrickable)
+  console.log("Reading colors.csv.gz...");
+  const colors = await readGzippedCSV<Color>("data/colors.csv.gz");
 
-  console.log("Reading parts.csv...");
-  const parts = await readCSV("data/parts.csv") as Part[];
+  console.log("Reading parts.csv.gz...");
+  const parts = await readGzippedCSV<Part>("data/parts.csv.gz");
 
   console.log("Reading sets.csv...");
   let sets: Set[] = [];
