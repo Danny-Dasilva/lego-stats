@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Grid } from '@githubocto/flat-ui'
 import { CoverageAnalysis, CoverageStats, TimePeriod } from './components/CoverageAnalysis'
-import { StackedBarChart, TrendsLineChart, CoveragePoint, DecadeColorData, YearTrend } from './components/charts'
+import { StackedBarChart, TrendsLineChart, DecadeColorData, YearTrend } from './components/charts'
 import { DateRangeFilter, YearRange } from './components/DateRangeFilter'
 
 type ViewMode = 'tables' | 'charts'
@@ -86,8 +86,6 @@ export default function App() {
 
   // Chart data
   const [coverageStats, setCoverageStats] = useState<CoverageStats | null>(null)
-  const [partData, setPartData] = useState<CoveragePoint[]>([])
-  const [colorData, setColorData] = useState<CoveragePoint[]>([])
   const [decadeColorsData, setDecadeColorsData] = useState<DecadeColorData[]>([])
   const [yearTrendsData, setYearTrendsData] = useState<YearTrend[]>([])
 
@@ -138,34 +136,11 @@ export default function App() {
     setLoading(true)
 
     if (activeChartDataset === 'coverage') {
-      // Load coverage stats + part/color data for curves
-      Promise.all([
-        fetch(CHART_DATA_FILES.coverage).then((res) => res.json()),
-        fetch(CHART_DATA_FILES.partFrequency).then((res) => res.json()),
-        fetch(CHART_DATA_FILES.colorStats).then((res) => res.json()),
-      ])
-        .then(([coverage, parts, colors]) => {
+      // Load coverage stats (includes curve data per period)
+      fetch(CHART_DATA_FILES.coverage)
+        .then((res) => res.json())
+        .then((coverage) => {
           setCoverageStats(coverage)
-          // Transform parts data to CoveragePoint format with defensive null checks
-          const partsArray = Array.isArray(parts) ? parts : []
-          setPartData(
-            partsArray.map((p: any, i: number) => ({
-              rank: p?.rank ?? i + 1,
-              name: p?.name ?? 'Unknown Part',
-              quantity: p?.quantity ?? 0,
-              cumulative_percent: p?.cumulative_percent ?? 0,
-            }))
-          )
-          // Transform colors data to CoveragePoint format with defensive null checks
-          const colorsArray = Array.isArray(colors) ? colors : []
-          setColorData(
-            colorsArray.map((c: any, i: number) => ({
-              rank: c?.rank ?? i + 1,
-              name: c?.name ?? 'Unknown Color',
-              quantity: c?.quantity ?? 0,
-              cumulative_percent: c?.cumulative_percent ?? 0,
-            }))
-          )
           setLoading(false)
         })
         .catch((err) => {
@@ -298,15 +273,26 @@ export default function App() {
         {loading ? (
           <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
         ) : viewMode === 'tables' ? (
-          <div style={{ height: '100%' }}>
-            <Grid data={tableData} />
+          <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            {yearRange.startYear !== 1949 && (
+              <div style={{
+                padding: '0.5rem 1rem',
+                background: '#fff8e1',
+                borderBottom: '1px solid #ffe082',
+                fontSize: '0.875rem',
+                color: '#5d4037'
+              }}>
+                Note: Tables show all-time data. Use Charts → Coverage for date-filtered analysis.
+              </div>
+            )}
+            <div style={{ flex: 1 }}>
+              <Grid data={tableData} />
+            </div>
           </div>
         ) : activeChartDataset === 'coverage' ? (
           coverageStats ? (
             <CoverageAnalysis
               coverageStats={coverageStats}
-              partData={partData}
-              colorData={colorData}
               selectedPeriod={selectedPeriod}
             />
           ) : (

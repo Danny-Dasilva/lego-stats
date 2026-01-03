@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { CoverageCurve, CoveragePoint } from './charts';
 
 // Data interfaces matching postprocess.ts output
@@ -18,13 +19,29 @@ interface PeriodCoverageData {
   thresholds: Record<string, CoverageThreshold>;
 }
 
+// Curve point for chart rendering (sampled from full data)
+interface CurvePoint {
+  rank: number;
+  name: string;
+  quantity: number;
+  cumulative_percent: number;
+}
+
+// Period data with both thresholds and curve points
+interface PeriodDataWithCurves {
+  parts: PeriodCoverageData;
+  colors: PeriodCoverageData;
+  parts_curve?: CurvePoint[];
+  colors_curve?: CurvePoint[];
+}
+
 interface CoverageStats {
   parts: PeriodCoverageData;
   colors: PeriodCoverageData;
   by_period?: {
-    all_time: { parts: PeriodCoverageData; colors: PeriodCoverageData };
-    last_5_years: { parts: PeriodCoverageData; colors: PeriodCoverageData };
-    last_10_years: { parts: PeriodCoverageData; colors: PeriodCoverageData };
+    all_time: PeriodDataWithCurves;
+    last_5_years: PeriodDataWithCurves;
+    last_10_years: PeriodDataWithCurves;
   };
 }
 
@@ -38,8 +55,6 @@ const PERIOD_LABELS: Record<TimePeriod, string> = {
 
 interface CoverageAnalysisProps {
   coverageStats: CoverageStats;
-  partData: CoveragePoint[];
-  colorData: CoveragePoint[];
   selectedPeriod: TimePeriod;
 }
 
@@ -189,8 +204,6 @@ function findCoverageForTopN(data: CoveragePoint[], n: number): number {
 
 export function CoverageAnalysis({
   coverageStats,
-  partData,
-  colorData,
   selectedPeriod,
 }: CoverageAnalysisProps) {
   const thresholdKeys = ['50', '80', '90', '95', '99'];
@@ -200,10 +213,37 @@ export function CoverageAnalysis({
     ? coverageStats.by_period[selectedPeriod]
     : { parts: coverageStats.parts, colors: coverageStats.colors };
 
+  // Extract curve data from the selected period
+  const partCurveData = useMemo((): CoveragePoint[] => {
+    const periodData = coverageStats.by_period?.[selectedPeriod];
+    if (periodData?.parts_curve) {
+      return periodData.parts_curve.map(p => ({
+        rank: p.rank,
+        name: p.name,
+        quantity: p.quantity,
+        cumulative_percent: p.cumulative_percent
+      }));
+    }
+    return [];
+  }, [coverageStats, selectedPeriod]);
+
+  const colorCurveData = useMemo((): CoveragePoint[] => {
+    const periodData = coverageStats.by_period?.[selectedPeriod];
+    if (periodData?.colors_curve) {
+      return periodData.colors_curve.map(c => ({
+        rank: c.rank,
+        name: c.name,
+        quantity: c.quantity,
+        cumulative_percent: c.cumulative_percent
+      }));
+    }
+    return [];
+  }, [coverageStats, selectedPeriod]);
+
   // Calculate insights using active period data
-  const top100PartsCoverage = findCoverageForTopN(partData, 100);
+  const top100PartsCoverage = findCoverageForTopN(partCurveData, 100);
   const partsFor80Pct = activeCoverage.parts.thresholds['80']?.count || 0;
-  const partoPartsPercent = calculateParetoCoverage(partData);
+  const partoPartsPercent = calculateParetoCoverage(partCurveData);
 
   return (
     <div style={styles.container}>
@@ -249,7 +289,7 @@ export function CoverageAnalysis({
         <div style={styles.chartsContainer}>
           <div style={styles.chartCard}>
             <CoverageCurve
-              data={partData}
+              data={partCurveData}
               title="Parts Coverage"
               color="#0969da"
               thresholds={[50, 80, 90, 95, 99]}
@@ -257,7 +297,7 @@ export function CoverageAnalysis({
           </div>
           <div style={styles.chartCard}>
             <CoverageCurve
-              data={colorData}
+              data={colorCurveData}
               title="Colors Coverage"
               color="#2da44e"
               thresholds={[50, 80, 90, 95, 99]}
