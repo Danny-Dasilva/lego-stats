@@ -117,7 +117,7 @@ export function TrendsLineChart({
       >
         {title}
       </h3>
-      <ChartContainer aspectRatio={16 / 9} minHeight={300}>
+      <ChartContainer aspectRatio={2.5} minHeight={350} maxHeight={450}>
         {({ width, height }) => {
           const innerWidth = width - MARGIN.left - MARGIN.right;
           const innerHeight = height - MARGIN.top - MARGIN.bottom;

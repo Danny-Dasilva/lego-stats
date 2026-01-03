@@ -26,7 +26,7 @@ const CHART_DATA_FILES = {
 const TABLE_DATASET_INFO: Record<TableDataSet, { title: string; description: string }> = {
   parts: {
     title: 'Most Common LEGO Parts',
-    description: 'Top 100 parts by total quantity across all LEGO sets',
+    description: 'Parts ranked by total quantity across all LEGO sets',
   },
   colors: {
     title: 'LEGO Color Distribution',
@@ -92,7 +92,21 @@ export default function App() {
     fetch(TABLE_DATA_FILES[activeTableDataset])
       .then((res) => res.json())
       .then((json) => {
-        setTableData(json)
+        // For parts data, remove empty/broken image URLs to avoid broken images
+        // The Grid component will just show the URL text for valid URLs
+        if (activeTableDataset === 'parts') {
+          const processedData = json.map((item: any) => {
+            // Remove the image field if it's empty or has the broken ldraw URL pattern
+            if (!item.image || item.image.includes('/media/parts/ldraw/')) {
+              const { image, ...rest } = item
+              return rest
+            }
+            return item
+          })
+          setTableData(processedData)
+        } else {
+          setTableData(json)
+        }
         setLoading(false)
       })
       .catch((err) => {
@@ -174,65 +188,79 @@ export default function App() {
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <header style={{ padding: '1rem', borderBottom: '1px solid #e1e4e8' }}>
-        <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>LEGO Statistics</h1>
+      <header style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #e1e4e8' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+          {/* Left: Title and current view info */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <h1 style={{ fontSize: '1.25rem', margin: 0, whiteSpace: 'nowrap' }}>LEGO Statistics</h1>
+            <span style={{ color: '#57606a', fontSize: '0.875rem' }}>
+              {currentInfo.title} - {currentInfo.description}
+            </span>
+          </div>
 
-        {/* View Mode Toggle */}
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
-          <button
-            onClick={() => setViewMode('tables')}
-            style={getButtonStyle(viewMode === 'tables', 'secondary')}
-          >
-            Tables
-          </button>
-          <button
-            onClick={() => setViewMode('charts')}
-            style={getButtonStyle(viewMode === 'charts', 'secondary')}
-          >
-            Charts
-          </button>
+          {/* Right: Navigation */}
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {/* View Mode Toggle */}
+            <div style={{ display: 'flex', gap: '0.25rem', padding: '0.25rem', background: '#f6f8fa', borderRadius: '6px' }}>
+              <button
+                onClick={() => setViewMode('tables')}
+                style={{
+                  ...getButtonStyle(viewMode === 'tables', 'secondary'),
+                  padding: '0.25rem 0.5rem',
+                  fontSize: '0.875rem',
+                  border: viewMode === 'tables' ? '1px solid #e1e4e8' : '1px solid transparent',
+                }}
+              >
+                Tables
+              </button>
+              <button
+                onClick={() => setViewMode('charts')}
+                style={{
+                  ...getButtonStyle(viewMode === 'charts', 'secondary'),
+                  padding: '0.25rem 0.5rem',
+                  fontSize: '0.875rem',
+                  border: viewMode === 'charts' ? '1px solid #e1e4e8' : '1px solid transparent',
+                }}
+              >
+                Charts
+              </button>
+            </div>
+
+            <span style={{ color: '#d0d7de', margin: '0 0.25rem' }}>|</span>
+
+            {/* Dataset Navigation */}
+            {viewMode === 'tables' ? (
+              <>
+                {(['parts', 'colors', 'trends'] as TableDataSet[]).map((dataset) => (
+                  <button
+                    key={dataset}
+                    onClick={() => setActiveTableDataset(dataset)}
+                    style={{ ...getButtonStyle(activeTableDataset === dataset), padding: '0.25rem 0.5rem', fontSize: '0.875rem' }}
+                  >
+                    {dataset === 'parts' ? 'Parts' : dataset === 'colors' ? 'Colors' : 'Years'}
+                  </button>
+                ))}
+              </>
+            ) : (
+              <>
+                {(['coverage', 'colorTrends', 'historical'] as ChartDataSet[]).map((dataset) => (
+                  <button
+                    key={dataset}
+                    onClick={() => setActiveChartDataset(dataset)}
+                    style={{ ...getButtonStyle(activeChartDataset === dataset), padding: '0.25rem 0.5rem', fontSize: '0.875rem' }}
+                  >
+                    {dataset === 'coverage'
+                      ? 'Coverage'
+                      : dataset === 'colorTrends'
+                      ? 'Color Trends'
+                      : 'Historical'}
+                  </button>
+                ))}
+              </>
+            )}
+          </nav>
         </div>
-
-        {/* Dataset Navigation */}
-        <nav style={{ display: 'flex', gap: '0.5rem' }}>
-          {viewMode === 'tables' ? (
-            <>
-              {(['parts', 'colors', 'trends'] as TableDataSet[]).map((dataset) => (
-                <button
-                  key={dataset}
-                  onClick={() => setActiveTableDataset(dataset)}
-                  style={getButtonStyle(activeTableDataset === dataset)}
-                >
-                  {dataset === 'parts' ? 'Parts' : dataset === 'colors' ? 'Colors' : 'Years'}
-                </button>
-              ))}
-            </>
-          ) : (
-            <>
-              {(['coverage', 'colorTrends', 'historical'] as ChartDataSet[]).map((dataset) => (
-                <button
-                  key={dataset}
-                  onClick={() => setActiveChartDataset(dataset)}
-                  style={getButtonStyle(activeChartDataset === dataset)}
-                >
-                  {dataset === 'coverage'
-                    ? 'Coverage'
-                    : dataset === 'colorTrends'
-                    ? 'Color Trends'
-                    : 'Historical'}
-                </button>
-              ))}
-            </>
-          )}
-        </nav>
       </header>
-
-      <div style={{ padding: '1rem 1rem 0', borderBottom: '1px solid #e1e4e8' }}>
-        <h2 style={{ fontSize: '1.25rem', margin: 0 }}>{currentInfo.title}</h2>
-        <p style={{ color: '#57606a', margin: '0.25rem 0 0.75rem', fontSize: '0.875rem' }}>
-          {currentInfo.description}
-        </p>
-      </div>
 
       <main
         style={{

@@ -95,28 +95,25 @@ interface CoverageThreshold {
   items: Array<{ name: string; percent: number; cumulative_percent: number }>;
 }
 
-interface CoverageStats {
-  parts: {
-    total_unique: number;
-    total_quantity: number;
-    thresholds: {
-      "50": CoverageThreshold;
-      "80": CoverageThreshold;
-      "90": CoverageThreshold;
-      "95": CoverageThreshold;
-      "99": CoverageThreshold;
-    };
+interface PeriodCoverageData {
+  total_unique: number;
+  total_quantity: number;
+  thresholds: {
+    "50": CoverageThreshold;
+    "80": CoverageThreshold;
+    "90": CoverageThreshold;
+    "95": CoverageThreshold;
+    "99": CoverageThreshold;
   };
-  colors: {
-    total_unique: number;
-    total_quantity: number;
-    thresholds: {
-      "50": CoverageThreshold;
-      "80": CoverageThreshold;
-      "90": CoverageThreshold;
-      "95": CoverageThreshold;
-      "99": CoverageThreshold;
-    };
+}
+
+interface CoverageStats {
+  parts: PeriodCoverageData;
+  colors: PeriodCoverageData;
+  by_period: {
+    all_time: { parts: PeriodCoverageData; colors: PeriodCoverageData };
+    last_5_years: { parts: PeriodCoverageData; colors: PeriodCoverageData };
+    last_10_years: { parts: PeriodCoverageData; colors: PeriodCoverageData };
   };
 }
 
@@ -267,15 +264,19 @@ async function main() {
 
   // ===== Part Frequency =====
   console.log("Computing part frequency...");
-  const partAgg = new Map<string, { part_num: string; quantity: number }>();
+  const partAgg = new Map<string, { part_num: string; quantity: number; img_url: string }>();
 
   for (const ip of inventoryParts) {
     const qty = parseInt(ip.quantity) || 0;
     const existing = partAgg.get(ip.part_num);
     if (existing) {
       existing.quantity += qty;
+      // Use img_url from CSV if available and we don't have one yet
+      if (ip.img_url && !existing.img_url) {
+        existing.img_url = ip.img_url;
+      }
     } else {
-      partAgg.set(ip.part_num, { part_num: ip.part_num, quantity: qty });
+      partAgg.set(ip.part_num, { part_num: ip.part_num, quantity: qty, img_url: ip.img_url || '' });
     }
   }
 
@@ -296,7 +297,8 @@ async function main() {
       part_num: p.part_num,
       name: part?.name || "Unknown",
       quantity: p.quantity,
-      image: `https://cdn.rebrickable.com/media/parts/ldraw/0/${p.part_num}.png`,
+      // Use img_url from inventory_parts.csv if available, otherwise empty string (handled by frontend)
+      image: p.img_url || '',
       rank: index + 1,
       percent,
       cumulative_percent
@@ -458,28 +460,131 @@ async function main() {
     };
   }
 
+  // Helper to build coverage data for a given item list
+  function buildCoverageData<T extends { name: string; percent: number; cumulative_percent: number }>(
+    items: T[],
+    totalQuantity: number
+  ): PeriodCoverageData {
+    return {
+      total_unique: items.length,
+      total_quantity: totalQuantity,
+      thresholds: {
+        "50": getThresholdItems(items, 50),
+        "80": getThresholdItems(items, 80),
+        "90": getThresholdItems(items, 90),
+        "95": getThresholdItems(items, 95),
+        "99": getThresholdItems(items, 99)
+      }
+    };
+  }
+
+  // All-time coverage (already computed above)
+  const allTimePartsCoverage = buildCoverageData(partFrequency, totalPartsQuantity);
+  const allTimeColorsCoverage = buildCoverageData(colorStats, totalPieces);
+
+  // ===== Period-Filtered Coverage Stats =====
+  console.log("Computing period-filtered coverage stats...");
+
+  // Get the current year for period calculations
+  const currentYear = new Date().getFullYear();
+  const fiveYearsAgo = currentYear - 5;
+  const tenYearsAgo = currentYear - 10;
+
+  // Helper to compute coverage for a given year filter
+  function computePeriodCoverage(minYear: number): { parts: PeriodCoverageData; colors: PeriodCoverageData } {
+    // Aggregate parts by period
+    const periodPartAgg = new Map<string, { part_num: string; quantity: number }>();
+    const periodColorAgg = new Map<string, { name: string; color: string; quantity: number }>();
+
+    for (const ip of inventoryParts) {
+      const qty = parseInt(ip.quantity) || 0;
+      const setNum = inventoryToSetMap.get(ip.inventory_id);
+      if (!setNum) continue;
+
+      const set = setMap.get(setNum);
+      if (!set) continue;
+
+      const year = parseInt(set.year);
+      if (isNaN(year) || year < minYear) continue;
+
+      // Aggregate parts
+      const existingPart = periodPartAgg.get(ip.part_num);
+      if (existingPart) {
+        existingPart.quantity += qty;
+      } else {
+        periodPartAgg.set(ip.part_num, { part_num: ip.part_num, quantity: qty });
+      }
+
+      // Aggregate colors
+      const color = colorMap.get(ip.color_id);
+      if (color) {
+        const colorKey = `${color.rgb}-${color.name}`;
+        const existingColor = periodColorAgg.get(colorKey);
+        if (existingColor) {
+          existingColor.quantity += qty;
+        } else {
+          periodColorAgg.set(colorKey, { name: color.name, color: `#${color.rgb}`, quantity: qty });
+        }
+      }
+    }
+
+    // Compute parts coverage for period
+    const periodParts = Array.from(periodPartAgg.values())
+      .sort((a, b) => b.quantity - a.quantity);
+    const periodPartsTotal = periodParts.reduce((sum, p) => sum + p.quantity, 0);
+
+    let periodPartCumulativeSum = 0;
+    const periodPartFrequency = periodParts.map((p, index) => {
+      const part = partMap.get(p.part_num);
+      const percent = periodPartsTotal > 0 ? parseFloat(((p.quantity / periodPartsTotal) * 100).toFixed(4)) : 0;
+      periodPartCumulativeSum += p.quantity;
+      const cumulative_percent = periodPartsTotal > 0 ? parseFloat(((periodPartCumulativeSum / periodPartsTotal) * 100).toFixed(4)) : 0;
+      return {
+        name: part?.name || "Unknown",
+        percent,
+        cumulative_percent
+      };
+    });
+
+    // Compute colors coverage for period
+    const periodColors = Array.from(periodColorAgg.values())
+      .sort((a, b) => b.quantity - a.quantity);
+    const periodColorsTotal = periodColors.reduce((sum, c) => sum + c.quantity, 0);
+
+    let periodColorCumulativeSum = 0;
+    const periodColorStats = periodColors.map((c, index) => {
+      const percent = periodColorsTotal > 0 ? parseFloat(((c.quantity / periodColorsTotal) * 100).toFixed(4)) : 0;
+      periodColorCumulativeSum += c.quantity;
+      const cumulative_percent = periodColorsTotal > 0 ? parseFloat(((periodColorCumulativeSum / periodColorsTotal) * 100).toFixed(4)) : 0;
+      return {
+        name: c.name,
+        percent,
+        cumulative_percent
+      };
+    });
+
+    return {
+      parts: buildCoverageData(periodPartFrequency, periodPartsTotal),
+      colors: buildCoverageData(periodColorStats, periodColorsTotal)
+    };
+  }
+
+  // Compute for each period
+  const last5YearsCoverage = computePeriodCoverage(fiveYearsAgo);
+  const last10YearsCoverage = computePeriodCoverage(tenYearsAgo);
+
   const coverageStats: CoverageStats = {
-    parts: {
-      total_unique: partFrequency.length,
-      total_quantity: totalPartsQuantity,
-      thresholds: {
-        "50": getThresholdItems(partFrequency, 50),
-        "80": getThresholdItems(partFrequency, 80),
-        "90": getThresholdItems(partFrequency, 90),
-        "95": getThresholdItems(partFrequency, 95),
-        "99": getThresholdItems(partFrequency, 99)
-      }
-    },
-    colors: {
-      total_unique: colorStats.length,
-      total_quantity: totalPieces,
-      thresholds: {
-        "50": getThresholdItems(colorStats, 50),
-        "80": getThresholdItems(colorStats, 80),
-        "90": getThresholdItems(colorStats, 90),
-        "95": getThresholdItems(colorStats, 95),
-        "99": getThresholdItems(colorStats, 99)
-      }
+    // Keep backward compatibility with top-level all-time stats
+    parts: allTimePartsCoverage,
+    colors: allTimeColorsCoverage,
+    // New period-based stats
+    by_period: {
+      all_time: {
+        parts: allTimePartsCoverage,
+        colors: allTimeColorsCoverage
+      },
+      last_5_years: last5YearsCoverage,
+      last_10_years: last10YearsCoverage
     }
   };
 

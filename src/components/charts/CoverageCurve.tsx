@@ -129,7 +129,7 @@ export function CoverageCurve({
       }}>
         {title}
       </h3>
-      <ChartContainer aspectRatio={16 / 9} minHeight={300}>
+      <ChartContainer aspectRatio={2} minHeight={300} maxHeight={400}>
         {({ width, height }) => {
           const innerWidth = width - MARGIN.left - MARGIN.right;
           const innerHeight = height - MARGIN.top - MARGIN.bottom;

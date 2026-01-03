@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CoverageCurve, CoveragePoint } from './charts';
 
 // Data interfaces matching postprocess.ts output
@@ -12,18 +13,29 @@ interface CoverageThreshold {
   items: CoverageThresholdItem[];  // first 10 items with details
 }
 
+interface PeriodCoverageData {
+  total_unique: number;
+  total_quantity: number;
+  thresholds: Record<string, CoverageThreshold>;
+}
+
 interface CoverageStats {
-  parts: {
-    total_unique: number;
-    total_quantity: number;
-    thresholds: Record<string, CoverageThreshold>;
-  };
-  colors: {
-    total_unique: number;
-    total_quantity: number;
-    thresholds: Record<string, CoverageThreshold>;
+  parts: PeriodCoverageData;
+  colors: PeriodCoverageData;
+  by_period?: {
+    all_time: { parts: PeriodCoverageData; colors: PeriodCoverageData };
+    last_5_years: { parts: PeriodCoverageData; colors: PeriodCoverageData };
+    last_10_years: { parts: PeriodCoverageData; colors: PeriodCoverageData };
   };
 }
+
+type TimePeriod = 'all_time' | 'last_5_years' | 'last_10_years';
+
+const PERIOD_LABELS: Record<TimePeriod, string> = {
+  all_time: 'All Time',
+  last_5_years: 'Last 5 Years',
+  last_10_years: 'Last 10 Years',
+};
 
 interface CoverageAnalysisProps {
   coverageStats: CoverageStats;
@@ -38,11 +50,46 @@ const styles = {
     backgroundColor: '#f6f8fa',
     minHeight: '100%',
   },
+  headerRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '16px',
+  },
   sectionTitle: {
     fontSize: '1rem',
     fontWeight: 600,
     color: '#24292f',
-    margin: '0 0 16px 0',
+    margin: 0,
+  },
+  periodSelector: {
+    display: 'flex',
+    gap: '8px',
+    alignItems: 'center',
+  },
+  periodLabel: {
+    fontSize: '0.875rem',
+    color: '#57606a',
+  },
+  periodButton: {
+    padding: '6px 12px',
+    border: '1px solid #d0d7de',
+    borderRadius: '6px',
+    backgroundColor: '#ffffff',
+    color: '#24292f',
+    fontSize: '0.875rem',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+  },
+  periodButtonActive: {
+    padding: '6px 12px',
+    border: '1px solid #0969da',
+    borderRadius: '6px',
+    backgroundColor: '#0969da',
+    color: '#ffffff',
+    fontSize: '0.875rem',
+    cursor: 'pointer',
+    fontWeight: 600,
   },
   // Summary cards
   cardsContainer: {
@@ -174,44 +221,69 @@ export function CoverageAnalysis({
   partData,
   colorData,
 }: CoverageAnalysisProps) {
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('all_time');
   const thresholdKeys = ['50', '80', '90', '95', '99'];
 
-  // Calculate insights
+  // Get the active coverage data based on selected period
+  const activeCoverage = coverageStats.by_period
+    ? coverageStats.by_period[selectedPeriod]
+    : { parts: coverageStats.parts, colors: coverageStats.colors };
+
+  // Calculate insights using active period data
   const top100PartsCoverage = findCoverageForTopN(partData, 100);
-  const partsFor80Pct = coverageStats.parts.thresholds['80']?.count || 0;
+  const partsFor80Pct = activeCoverage.parts.thresholds['80']?.count || 0;
   const partoPartsPercent = calculateParetoCoverage(partData);
+
+  // Period selector component
+  const periodButtons = (Object.keys(PERIOD_LABELS) as TimePeriod[]).map((period) => (
+    <button
+      key={period}
+      style={selectedPeriod === period ? styles.periodButtonActive : styles.periodButton}
+      onClick={() => setSelectedPeriod(period)}
+    >
+      {PERIOD_LABELS[period]}
+    </button>
+  ));
 
   return (
     <div style={styles.container}>
       {/* Summary Cards */}
       <section>
-        <h2 style={styles.sectionTitle}>Coverage Summary</h2>
+        <div style={styles.headerRow}>
+          <h2 style={styles.sectionTitle}>Coverage Summary</h2>
+          {coverageStats.by_period && (
+            <div style={styles.periodSelector}>
+              <span style={styles.periodLabel}>Time Period:</span>
+              {periodButtons}
+            </div>
+          )}
+        </div>
         <div style={styles.cardsContainer}>
           <div style={styles.card}>
             <div style={styles.cardLabel}>80% Coverage</div>
             <div style={styles.cardValue}>
-              {formatNumber(coverageStats.parts.thresholds['80']?.count || 0)} parts
+              {formatNumber(activeCoverage.parts.thresholds['80']?.count || 0)} parts
             </div>
             <div style={styles.cardSubValue}>
-              {formatNumber(coverageStats.colors.thresholds['80']?.count || 0)} colors
+              {formatNumber(activeCoverage.colors.thresholds['80']?.count || 0)} colors
             </div>
           </div>
           <div style={styles.card}>
             <div style={styles.cardLabel}>95% Coverage</div>
             <div style={styles.cardValue}>
-              {formatNumber(coverageStats.parts.thresholds['95']?.count || 0)} parts
+              {formatNumber(activeCoverage.parts.thresholds['95']?.count || 0)} parts
             </div>
             <div style={styles.cardSubValue}>
-              {formatNumber(coverageStats.colors.thresholds['95']?.count || 0)} colors
+              {formatNumber(activeCoverage.colors.thresholds['95']?.count || 0)} colors
             </div>
           </div>
           <div style={styles.card}>
             <div style={styles.cardLabel}>Total Unique Items</div>
             <div style={styles.cardValue}>
-              {formatNumber(coverageStats.parts.total_unique)} parts
+              {formatNumber(activeCoverage.parts.total_unique)} parts
             </div>
             <div style={styles.cardSubValue}>
-              {formatNumber(coverageStats.colors.total_unique)} colors
+              {formatNumber(activeCoverage.colors.total_unique)} colors
             </div>
           </div>
         </div>
@@ -260,10 +332,10 @@ export function CoverageAnalysis({
                   <tr key={key}>
                     <td style={cellStyle}>{key}%</td>
                     <td style={cellStyle}>
-                      {formatNumber(coverageStats.parts.thresholds[key]?.count || 0)}
+                      {formatNumber(activeCoverage.parts.thresholds[key]?.count || 0)}
                     </td>
                     <td style={cellStyle}>
-                      {formatNumber(coverageStats.colors.thresholds[key]?.count || 0)}
+                      {formatNumber(activeCoverage.colors.thresholds[key]?.count || 0)}
                     </td>
                   </tr>
                 );
@@ -286,7 +358,7 @@ export function CoverageAnalysis({
             <li style={styles.insightItem}>
               For <span style={styles.highlight}>80% coverage</span>, you need only{' '}
               <span style={styles.highlight}>{formatNumber(partsFor80Pct)}</span> of{' '}
-              {formatNumber(coverageStats.parts.total_unique)} unique parts.
+              {formatNumber(activeCoverage.parts.total_unique)} unique parts.
             </li>
             <li style={styles.insightItemLast}>
               <span style={styles.highlight}>Pareto insight:</span> The top 20% of parts
@@ -300,4 +372,4 @@ export function CoverageAnalysis({
   );
 }
 
-export type { CoverageStats, CoverageThreshold, CoverageAnalysisProps };
+export type { CoverageStats, CoverageThreshold, CoverageAnalysisProps, PeriodCoverageData, TimePeriod };
